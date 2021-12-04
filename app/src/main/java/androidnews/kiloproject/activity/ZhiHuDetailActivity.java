@@ -37,6 +37,7 @@ import java.util.List;
 import androidnews.kiloproject.R;
 import androidnews.kiloproject.entity.data.CacheNews;
 import androidnews.kiloproject.entity.net.ZhihuDetailData;
+import androidnews.kiloproject.web.DetailWebViewClient;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -49,6 +50,7 @@ import static androidnews.kiloproject.entity.data.CacheNews.CACHE_HISTORY;
 import static androidnews.kiloproject.system.AppConfig.HOST_ZHIHU;
 import static androidnews.kiloproject.system.AppConfig.TYPE_ZHIHU;
 import static androidnews.kiloproject.system.AppConfig.isNightMode;
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
 
 public class ZhiHuDetailActivity extends BaseDetailActivity {
     private ZhihuDetailData currentData;
@@ -229,7 +231,7 @@ public class ZhiHuDetailActivity extends BaseDetailActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (list != null && list.size() > 0)
+                if (!isEmpty(list))
                     for (CacheNews cacheNews : list) {
                         if (cacheNews.getType() == type)
                             return;
@@ -254,7 +256,7 @@ public class ZhiHuDetailActivity extends BaseDetailActivity {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        if (list != null && list.size() > 0) {
+        if (!isEmpty(list)) {
             for (CacheNews cacheNews : list) {
                 if (cacheNews.getType() == CACHE_COLLECTION) {
                     if (isClear) {
@@ -292,28 +294,14 @@ public class ZhiHuDetailActivity extends BaseDetailActivity {
                 view.loadUrl("javascript:function setTop(){document.querySelector('.view-more').style.display=\"none\";}setTop();");
                 if (isNightMode) {
                     view.loadUrl("javascript:function setTop(){document.querySelector('.headline').style.display=\"none\";}setTop();");
-                    InputStream is = getResources().openRawResource(R.raw.night);
-                    byte[] buffer = new byte[0];
-                    try {
-                        buffer = new byte[is.available()];
-                        is.read(buffer);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    String nightCode = Base64.encodeToString(buffer, Base64.NO_WRAP);
+                    String nightCode = getCssStr(R.raw.night);
                     webView.loadUrl("javascript:(function() {" + "var parent = document.getElementsByTagName('head').item(0);" + "var style = document.createElement('style');" + "style.type = 'text/css';" + "style.innerHTML = window.atob('" + nightCode + "');" + "parent.appendChild(style)" + "})();");
                 }
                 super.onProgressChanged(view, newProgress);
             }
         });
 
-        webView.setWebViewClient(new WebViewClient() {
+        webView.setWebViewClient(new DetailWebViewClient() {
             // 拦截页面加载，返回true表示宿主app拦截并处理了该url，否则返回false由当前WebView处理
             // 此方法在API24被废弃，不处理POST请求
             public boolean shouldOverrideUrlLoading(WebView view, String url) {

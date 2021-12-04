@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/black"
     android:descendantFocusability="blocksDescendants">
 
@@ -17,7 +18,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:background="#000000"
+        android:background="@android:color/black"
         android:scaleType="fitCenter" />
 
     <LinearLayout
@@ -36,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/margin_large"
             android:text="00:00"
-            android:textColor="#ffffff" />
+            android:textColor="@android:color/white" />
 
         <SeekBar
             android:id="@+id/bottom_seek_progress"
@@ -60,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="00:00"
-            android:textColor="#ffffff" />
+            android:textColor="@android:color/white" />
 
         <TextView
             android:id="@+id/clarity"
@@ -70,7 +71,7 @@
             android:paddingLeft="@dimen/margin_largest"
             android:text="clarity"
             android:textAlignment="center"
-            android:textColor="#ffffff" />
+            android:textColor="@android:color/white" />
 
         <ImageView
             android:id="@+id/fullscreen"
@@ -79,7 +80,7 @@
             android:paddingLeft="@dimen/margin_large"
             android:paddingRight="@dimen/margin_large"
             android:scaleType="centerInside"
-            android:src="@drawable/jz_enlarge" />
+            app:srcCompat="@drawable/jz_enlarge" />
     </LinearLayout>
 
     <ProgressBar
@@ -103,8 +104,7 @@
     <RelativeLayout
         android:id="@+id/layout_top"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
+        android:layout_height="?attr/actionBarSize"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -121,7 +121,7 @@
             android:layout_marginLeft="@dimen/margin_small"
             android:layout_marginStart="@dimen/margin_small"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_arrow_back" />
+            app:srcCompat="@drawable/ic_arrow_back" />
 
         <TextView
             android:id="@+id/title"
@@ -136,8 +136,8 @@
             android:layout_toLeftOf="@id/battery_time_layout"
             android:layout_toRightOf="@id/back"
             android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="#ffffff"
+            android:maxLength="12"
+            android:textColor="@android:color/white"
             android:textSize="@dimen/text_normal" />
 
         <LinearLayout
@@ -162,7 +162,7 @@
                 android:text="12:00"
                 android:layout_marginEnd="@dimen/margin_large"
                 android:layout_marginRight="@dimen/margin_large"
-                android:textColor="#ffffffff"
+                android:textColor="@android:color/white"
                 android:textSize="@dimen/text_small" />
 
             <ImageView
@@ -206,7 +206,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/margin_small"
         android:text="@string/replay"
-        android:textColor="#ffffff"
+        android:textColor="@android:color/white"
         android:textSize="@dimen/text_small"
         android:visibility="invisible" />
 

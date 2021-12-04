@@ -25,8 +25,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_goneMarginStart="@dimen/margin_large" />
 
-    <View
-        android:background="@drawable/ic_view_headline"
+    <ImageView
+        app:srcCompat="@drawable/ic_view_headline"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="@dimen/margin_largest"

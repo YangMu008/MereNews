@@ -2,28 +2,30 @@ package androidnews.kiloproject.fragment;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.blankj.utilcode.util.BusUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ScreenUtils;
-import com.blankj.utilcode.util.SnackbarUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import androidnews.kiloproject.system.AppConfig;
-import androidnews.kiloproject.widget.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 
 import com.google.gson.reflect.TypeToken;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 import com.zhouyou.http.EasyHttp;
 import com.zhouyou.http.callback.SimpleCallBack;
 import com.zhouyou.http.exception.ApiException;
@@ -45,6 +47,7 @@ import io.reactivex.schedulers.Schedulers;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_AUTO_LOADMORE;
 import static androidnews.kiloproject.system.AppConfig.GET_VIDEOS;
 import static androidnews.kiloproject.system.AppConfig.LIST_TYPE_MULTI;
+import static androidx.recyclerview.widget.OrientationHelper.HORIZONTAL;
 
 public class VideoRvFragment extends BaseRvFragment {
 
@@ -106,15 +109,13 @@ public class VideoRvFragment extends BaseRvFragment {
                     }
                 });
 
-        if (AppConfig.listType == LIST_TYPE_MULTI)
-            mRecyclerView.setLayoutManager(new GridLayoutManager(mActivity, 2));
-        else
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+//        if (AppConfig.listType == LIST_TYPE_MULTI)
+//            mRecyclerView.setLayoutManager(new GridLayoutManager(mActivity, 2));
+//        else
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+//        mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity,HORIZONTAL));
 
-//        refreshLayout.setRefreshHeader(new MaterialHeader(mActivity));
-//        refreshLayout.setRefreshFooter(new ClassicsFooter(mActivity));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
@@ -179,7 +180,8 @@ public class VideoRvFragment extends BaseRvFragment {
                                         refreshLayout.finishLoadMore(false);
                                     break;
                             }
-                            ToastUtils.showShort(getString(R.string.load_fail) + e.getMessage());
+                            if (isAdded())
+                                ToastUtils.showShort(getResources().getString(R.string.load_fail) + e.getMessage());
                         }
                     }
 
@@ -261,9 +263,7 @@ public class VideoRvFragment extends BaseRvFragment {
                                                         refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                                                     refreshLayout.finishRefresh(true);
                                                     if (!AppConfig.isDisNotice)
-                                                        SnackbarUtils.with(refreshLayout)
-                                                                .setMessage(getString(R.string.load_success))
-                                                                .show();
+                                                        BusUtils.post(BUS_TAG_MAIN_SHOW, getString(R.string.load_success));
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -286,24 +286,6 @@ public class VideoRvFragment extends BaseRvFragment {
                         }
                     }
                 });
-    }
-
-    private void loadFailed(int type) {
-        switch (type) {
-            case TYPE_REFRESH:
-                if (AppConfig.isHaptic)
-                    refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                refreshLayout.finishRefresh(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-            case TYPE_LOADMORE:
-                if (SPUtils.getInstance().getBoolean(CONFIG_AUTO_LOADMORE))
-                    mAdapter.loadMoreFail();
-                else
-                    refreshLayout.finishLoadMore(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-        }
     }
 
     private void createAdapter() {

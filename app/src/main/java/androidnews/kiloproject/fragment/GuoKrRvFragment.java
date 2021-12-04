@@ -2,10 +2,13 @@ package androidnews.kiloproject.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -13,21 +16,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.blankj.utilcode.util.BusUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.SnackbarUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
+import androidnews.kiloproject.adapter.ListBannerAdapter;
+import androidnews.kiloproject.entity.data.ListBannerData;
 import androidnews.kiloproject.system.AppConfig;
-import androidnews.kiloproject.widget.materialviewpager.header.MaterialViewPagerHeaderDecorator;
+import androidnews.kiloproject.system.base.BaseActivity;
 
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 import com.youth.banner.Banner;
-import com.youth.banner.BannerConfig;
-import com.youth.banner.Transformer;
+import com.youth.banner.indicator.CircleIndicator;
 import com.youth.banner.listener.OnBannerListener;
 import com.zhouyou.http.EasyHttp;
 import com.zhouyou.http.callback.SimpleCallBack;
@@ -38,7 +42,6 @@ import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidnews.kiloproject.util.GlideImageLoader;
 import androidnews.kiloproject.R;
 import androidnews.kiloproject.activity.GuoKrDetailActivity;
 import androidnews.kiloproject.adapter.GuoKrAdapter;
@@ -46,7 +49,6 @@ import androidnews.kiloproject.entity.data.CacheNews;
 import androidnews.kiloproject.entity.data.GuoKrCacheData;
 import androidnews.kiloproject.entity.net.GuoKrListData;
 import androidnews.kiloproject.entity.net.GuoKrTopData;
-import androidnews.kiloproject.widget.materialviewpager.header.MaterialViewPagerHeaderDecoratorGrid;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -61,6 +63,7 @@ import static androidnews.kiloproject.system.AppConfig.GET_GUO_KR_LIST;
 import static androidnews.kiloproject.system.AppConfig.GET_GUO_KR_TOP;
 import static androidnews.kiloproject.system.AppConfig.LIST_TYPE_MULTI;
 import static androidnews.kiloproject.system.AppConfig.TYPE_GUOKR;
+import static androidx.recyclerview.widget.OrientationHelper.HORIZONTAL;
 
 public class GuoKrRvFragment extends BaseRvFragment {
 
@@ -141,17 +144,15 @@ public class GuoKrRvFragment extends BaseRvFragment {
                     }
                 });
 
-        if (AppConfig.listType == LIST_TYPE_MULTI) {
+        if (AppConfig.listType == LIST_TYPE_MULTI)
             mRecyclerView.setLayoutManager(new GridLayoutManager(mActivity, 2));
-            mRecyclerView.addItemDecoration(new MaterialViewPagerHeaderDecoratorGrid());
-        } else {
+//            mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity,HORIZONTAL));
+        else
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-            mRecyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
-        }
-        mRecyclerView.setHasFixedSize(true);
 
-//        refreshLayout.setRefreshHeader(new MaterialHeader(mActivity));
-//        refreshLayout.setRefreshFooter(new ClassicsFooter(mActivity));
+        mRecyclerView.setHasFixedSize(true);
+//        mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity,HORIZONTAL));
+
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
@@ -194,7 +195,7 @@ public class GuoKrRvFragment extends BaseRvFragment {
                         && contents.getListData().getResult().size() > 0)
                     currentPage = 20;
                 if (currentPage > 60) {
-                    SnackbarUtils.with(mRecyclerView).setMessage(getResources().getString(R.string.empty_content)).show();
+                    BusUtils.post(BUS_TAG_MAIN_SHOW, getResources().getString(R.string.empty_content));
                     refreshLayout.finishLoadMore(false);
                     return;
                 }
@@ -223,7 +224,8 @@ public class GuoKrRvFragment extends BaseRvFragment {
                                         refreshLayout.finishLoadMore(false);
                                     break;
                             }
-                            ToastUtils.showShort(getString(R.string.load_fail) + e.getMessage());
+                            if (isAdded())
+                                ToastUtils.showShort(getResources().getString(R.string.load_fail) + e.getMessage());
                         }
                     }
 
@@ -294,9 +296,7 @@ public class GuoKrRvFragment extends BaseRvFragment {
                                                         refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                                                     refreshLayout.finishRefresh(true);
                                                     if (!AppConfig.isDisNotice)
-                                                        SnackbarUtils.with(refreshLayout)
-                                                                .setMessage(getString(R.string.load_success))
-                                                                .show();
+                                                        BusUtils.post(BUS_TAG_MAIN_SHOW, getString(R.string.load_success));
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -365,24 +365,6 @@ public class GuoKrRvFragment extends BaseRvFragment {
                 });
     }
 
-    private void loadFailed(int type) {
-        switch (type) {
-            case TYPE_REFRESH:
-                if (AppConfig.isHaptic)
-                    refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                refreshLayout.finishRefresh(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-            case TYPE_LOADMORE:
-                if (SPUtils.getInstance().getBoolean(CONFIG_AUTO_LOADMORE))
-                    mAdapter.loadMoreFail();
-                else
-                    refreshLayout.finishLoadMore(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-        }
-    }
-
     private void createAdapter() {
         if (contents == null || contents.getListData() == null || contents.getListData().getResult() == null)
             return;
@@ -427,35 +409,31 @@ public class GuoKrRvFragment extends BaseRvFragment {
 
     private void createBanner() {
         if (contents.getTopData() != null && contents.getTopData().getResult().size() > 0) {
-            List<String> imgs = new ArrayList<>();
-            List<String> titles = new ArrayList<>();
+            List<ListBannerData> imgs = new ArrayList<>();
             for (GuoKrTopData.ResultBean bean : contents.getTopData().getResult()) {
                 if (bean.getArticle_id() != 0) {
-                    imgs.add(bean.getPicture());
-                    titles.add(bean.getCustom_title());
+                    imgs.add(new ListBannerData(bean.getPicture(), bean.getCustom_title()));
                 }
             }
             header = (CardView) LayoutInflater.from(mActivity).inflate(R.layout.list_item_card_banner,
                     (ViewGroup) refreshLayout.getParent(), false);
 
             banner = header.findViewById(R.id.banner);
-            banner.setImageLoader(new GlideImageLoader())
-                    .setBannerAnimation(Transformer.FlipHorizontal)
-                    .setBannerStyle(BannerConfig.NUM_INDICATOR_TITLE)
-                    .setDelayTime(5 * 1000)
-                    .setImages(imgs)
-                    .setBannerTitles(titles)
+            banner.addBannerLifecycleObserver((BaseActivity) mActivity)//添加生命周期观察者
+                    .setAdapter(new ListBannerAdapter(imgs))
+                    .setDelayTime(8 * 1000)
+                    .setIndicator(new CircleIndicator(mActivity))
                     .setOnBannerListener(new OnBannerListener() {
                         @Override
-                        public void OnBannerClick(int position) {
+                        public void OnBannerClick(Object data, int position) {
                             Intent intent = new Intent(getActivity(), GuoKrDetailActivity.class);
                             intent.putExtra("title", contents.getTopData().getResult().get(position).getCustom_title());
                             intent.putExtra("id", contents.getTopData().getResult().get(position).getArticle_id());
                             intent.putExtra("img", contents.getTopData().getResult().get(position).getPicture());
                             startActivity(intent);
                         }
-                    });
-            banner.start();
+                    }).start();
+
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ConvertUtils.dp2px(200));
             params.setMargins(ConvertUtils.dp2px(10), ConvertUtils.dp2px(8),
@@ -469,19 +447,5 @@ public class GuoKrRvFragment extends BaseRvFragment {
             }
         }
         SPUtils.getInstance().put(CACHE_LIST_DATA, gson.toJson(contents));
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (banner != null)
-            banner.startAutoPlay();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (banner != null)
-            banner.stopAutoPlay();
     }
 }

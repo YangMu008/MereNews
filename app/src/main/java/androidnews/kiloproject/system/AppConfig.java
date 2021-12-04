@@ -25,7 +25,9 @@ public class AppConfig {
             isNoImage,
             isEasterEggs,
             isShowSkeleton,
-            isAutoNight;;
+            isBlockWeMedia,
+            isShowDetailTime,
+            isAutoNight;
     public static int listType,pushTime;
 
     public static String[] goodTags;
@@ -53,11 +55,13 @@ public class AppConfig {
 
     public static final int TYPE_PRESS_START = 125;
     public static final int TYPE_PRESS_END = 199;
-    public static final int TYPE_PRESS_END_USED = 176;
+    public static final int TYPE_PRESS_END_USED = 173;
 
     public static final int TYPE_SMARTISAN_START = 200;
     public static final int TYPE_SMARTISAN_END = 208;
     public static final int TYPE_SMARTISAN_END_USED = 214;
+
+    public static final int TYPE_PEAR_VIDEO = 1001;
 
     //网易
     public static final String HOST_163 = "http://c.m.163.com";
@@ -144,8 +148,6 @@ public class AppConfig {
 
     public static final String CONFIG_TYPE_SORT = "config_type_sort";
 
-    public static final String CONFIG_HEADER_COLOR = "config_header_color";
-
     public static final String CONFIG_LIST_TYPE = "config_list_type";
 
     public static final String CONFIG_LAST_LAUNCH = "config_last_launch";  //设置重置
@@ -169,6 +171,10 @@ public class AppConfig {
     public static final String CONFIG_HAPTIC = "config_haptic";
 
     public static final String CONFIG_NO_IMAGE = "config_no_image";
+
+    public static final String CONFIG_SHOW_DETAIL_TIME = "config_show_detail_time";
+
+    public static final String CONFIG_BLOCK_WE_MEDIA = "config_block_we_media";
 
     public static final String CACHE_LAST_PUSH_ID = "cache_push_id";  //当日推送的id统计
 

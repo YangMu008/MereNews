@@ -15,11 +15,8 @@
     </array>
 
     <array name="header_setting">
-        <item>@string/random_header_pic_auto</item>
-        <item>@string/random_header_pic_per</item>
-        <item>@string/random_header_color_gradual</item>
-        <item>@string/random_header_color_pure</item>
-        <item>@string/custom_header_color_pure</item>
+        <item>@string/random_header_banner</item>
+        <item>@string/random_header_static</item>
     </array>
 
     <array name="push_time_setting">
@@ -50,6 +47,10 @@
         <item>@string/news_cache</item>
     </array>
 
+    <array name="lab_setting">
+        <item>@string/block_we_media</item>
+        <item>@string/show_detail_time</item>
+    </array>
 
     <array name="good_tag">
         <item>独家</item>
@@ -210,7 +211,7 @@
         <item>南都娱乐</item>
         <item>生活周刊</item>
         <item>时代周报</item>
-        <item>华商报</item>
+        <item>暂无</item>
         <item>家庭医学</item>
         <item>民主法制</item>
         <item>南方都市</item>
@@ -220,17 +221,17 @@
         <item>康颐杂志</item>
         <item>人民网舆情</item>
         <item>中国产经</item>
-        <item>北京青年报</item>
-        <item>紫金山视频</item>
+        <item>暂无</item>
+        <item>暂无</item>
         <item>余杭晨报</item>
         <item>广州青年</item>
         <item>华西社区</item>
         <item>光明日报</item>
-        <item>法制日报</item>
+        <item>暂无</item>
         <item>岳阳网</item>
         <item>中国消费者</item>
-        <item>东方今报</item>
-        <item>衡阳频道</item>
+        <item>暂无</item>
+        <item>暂无</item>
         <item>郑州晚报</item>
         <item>柯桥日报</item>
         <item>承德晚报</item>
@@ -240,7 +241,7 @@
         <item>新晚报</item>
         <item>大科技</item>
         <item>暂无</item>
-        <item>南国早报</item>
+        <item>暂无</item>
         <item>呼市吧</item>
         <item>青报新媒</item>
         <item>每周文摘</item>
@@ -251,10 +252,10 @@
         <item>大公报</item>
         <item>暂无</item>
         <item>前沿时报</item>
-        <item>暂无</item>
-        <item>暂无</item>
-        <item>诸暨日报</item>
 
+        <item>fake</item> //空
+        <item>fake</item> //空
+        <item>fake</item> //空
         <item>fake</item> //空
         <item>fake</item> //空
         <item>fake</item> //空
@@ -470,7 +471,7 @@
         <item>T1374537739895</item> //南都娱乐周刊
         <item>T1374538660651</item> //生活周刊
         <item>T1374538896985</item> //时代周报
-        <item>T1374539467780</item> //华商报
+        <item>T1374539467780</item> //
         <item>T1475223906403</item> //家庭医学
         <item>T1402452375609</item> //民主与法制
         <item>T1374537849029</item> //南方都市报
@@ -480,17 +481,17 @@
         <item>T1432884273758</item> //康颐杂志
         <item>T1435198433041</item> //人民网舆情监测室
         <item>T1440129813308</item> //中国产经新闻
-        <item>T1443017451668</item> //北京青年报
-        <item>T1451460602924</item> //紫金山视频
+        <item>T1443017451668</item> //
+        <item>T1451460602924</item> //
         <item>T1473319493382</item> //余杭晨报
         <item>T1453779161204</item> //广州青年报
         <item>T1454310147855</item> //华西社区报
         <item>T1456465723341</item> //光明日报
-        <item>T1456902217191</item> //法制日报
+        <item>T1456902217191</item> //
         <item>T1456989131243</item> //岳阳网
         <item>T1473238367742</item> //中国消费者报
-        <item>T1457583889187</item> //东方今报
-        <item>T1457594773769</item> //华声在线衡阳频道
+        <item>T1457583889187</item> //
+        <item>T1457594773769</item> //
         <item>T1459496338561</item> //郑州晚报
         <item>T1460256397238</item> //绍兴市柯桥日报有限公司
         <item>T1460358206122</item> //承德晚报
@@ -500,7 +501,7 @@
         <item>T1462260641741</item> //新晚报
         <item>T1462417695101</item> //大科技杂志社
         <item>T1473061363849</item> //消费者报道
-        <item>T1463106169903</item> //南国早报
+        <item>T1463106169903</item> //
         <item>T1463649152673</item> //呼和浩特吧
         <item>T1464677529259</item> //青报新媒
         <item>T1465700224209</item> //每周文摘
@@ -511,10 +512,10 @@
         <item>T1467079994591</item> //大公报-大公网
         <item>T1467100238109</item> //
         <item>T1468814169539</item> //前沿时报
-        <item>T1468983880621</item> //
-        <item>T1469167711734</item> //
-        <item>T1469500605873</item> //诸暨日报爱诸暨
 
+        <item>fake</item> //空
+        <item>fake</item> //空
+        <item>fake</item> //空
         <item>fake</item> //空
         <item>fake</item> //空
         <item>fake</item> //空

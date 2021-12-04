@@ -172,15 +172,9 @@
 
     <string name="text_size">文章字号</string>
 
-    <string name="random_header_pic_per">滑动轮播</string>
+    <string name="random_header_banner">图片资讯</string>
 
-    <string name="random_header_pic_auto">自动轮播</string>
-
-    <string name="random_header_color_gradual">渐变色轮播</string>
-
-    <string name="random_header_color_pure">纯色轮播</string>
-
-    <string name="custom_header_color_pure">自定义纯色</string>
+    <string name="random_header_static">静态图</string>
 
     <string name="click_to_exit">再按一次退出应用</string>
 
@@ -196,7 +190,7 @@
 
     <string name="update_title">发现一个新版本</string>
 
-    <string name="update_message">您可到应用商店(酷安)更新,或点击确认进行下载安装</string>
+    <string name="update_message">您可点击确认进行下载安装</string>
 
     <string name="update_title_no">恭喜,当前已是最新版本</string>
     
@@ -278,7 +272,7 @@
 
     <string name="notification_mode">兼容模式</string>
 
-    <string name="notification_mode_detail">功能正常则不要开启</string>
+    <string name="notification_mode_detail">只建议无法收到推送的用户尝试</string>
 
     <string name="time_level_1">频繁</string>
     <string name="time_level_2">一般</string>
@@ -317,4 +311,24 @@
     <string name="support_offline">支持离线</string>
 
     <string name="home">首页</string>
+
+    <string name="refresh">刷新</string>
+
+    <string name="previous">上一项</string>
+
+    <string name="next">下一项</string>
+
+    <string name="search">搜索</string>
+
+    <string name="lab_setting">实验功能</string>
+
+    <string name="lab_setting_detail">新功能设置</string>
+    
+    <string name="block_we_media">屏蔽网易自媒体</string>
+
+    <string name="show_detail_time">列表页展示详细时间</string>
+
+    <string name="enabled">已开启</string>
+
+    <string name="disabled">已关闭</string>
 </resources>

@@ -37,6 +37,7 @@ import static androidnews.kiloproject.adapter.CommentAdapter.LEVEL_ONE;
 import static androidnews.kiloproject.adapter.CommentAdapter.LEVEL_TWO;
 import static androidnews.kiloproject.system.AppConfig.GET_NEWS_COMMENT;
 import static androidnews.kiloproject.system.AppConfig.HOST_163_COMMENT;
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
 
 public class CommentActivity extends BaseActivity {
 
@@ -90,7 +91,7 @@ public class CommentActivity extends BaseActivity {
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
-                            if (data != null && data.getNewPosts() != null && data.getNewPosts().size() > 0)
+                            if (data != null && !isEmpty(data.getNewPosts()))
                                 analysisData(data);
                             else
                                 emptyView.setVisibility(View.VISIBLE);
@@ -183,7 +184,6 @@ public class CommentActivity extends BaseActivity {
                     public void accept(Boolean aBoolean) throws Exception {
                         commentAdapter = new CommentAdapter(mActivity, comments);
                         rvContent.setLayoutManager(new LinearLayoutManager(mActivity));
-                        rvContent.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
                         rvContent.setAdapter(commentAdapter);
                     }
                 });

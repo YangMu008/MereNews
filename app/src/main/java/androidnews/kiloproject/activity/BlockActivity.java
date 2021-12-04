@@ -1,6 +1,7 @@
 package androidnews.kiloproject.activity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import static androidnews.kiloproject.entity.data.BlockItem.TYPE_KEYWORDS;
 import static androidnews.kiloproject.entity.data.BlockItem.TYPE_SOURCE;
+import static androidnews.kiloproject.system.AppConfig.isNightMode;
 
 public class BlockActivity extends BaseActivity {
 
@@ -91,16 +93,15 @@ public class BlockActivity extends BaseActivity {
                                             e.printStackTrace();
                                         }
                                     }
-                                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).show();
+                                }).setNegativeButton(android.R.string.cancel,null).show()
+                                .getButton(Dialog.BUTTON_NEGATIVE)
+                                .setBackgroundColor(getResources()
+                                        .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
                         break;
                     case R.id.action_list_add:
                         final EditText editText = new EditText(mActivity);
                         editText.setHint(R.string.keywords);
+                        editText.setHintTextColor(getResources().getColor(R.color.black));
                         editText.setTextColor(getResources().getColor(R.color.black));
                         new MaterialStyledDialog.Builder(mActivity)
                                 .setHeaderDrawable(R.drawable.ic_edit)
@@ -214,9 +215,8 @@ public class BlockActivity extends BaseActivity {
                         progress.setVisibility(View.GONE);
                         if (aBoolean) {
                             adapter = new BlockAdapter(blockList);
-                            rvContent.setAdapter(adapter);
-                            rvContent.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
                             rvContent.setLayoutManager(new LinearLayoutManager(mActivity));
+                            rvContent.setAdapter(adapter);
                         } else {
                             setEmptyView();
                         }
@@ -257,12 +257,10 @@ public class BlockActivity extends BaseActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     deleteItem(item);
                                 }
-                            }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    }).show();
+                            }).setNegativeButton(android.R.string.cancel,null).show()
+                            .getButton(Dialog.BUTTON_NEGATIVE)
+                            .setBackgroundColor(getResources()
+                                    .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
                 }
             });
         }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
@@ -12,18 +13,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.blankj.utilcode.util.BusUtils;
 import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.SnackbarUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 import com.youth.banner.Banner;
-import com.youth.banner.BannerConfig;
-import com.youth.banner.Transformer;
+import com.youth.banner.indicator.CircleIndicator;
 import com.youth.banner.listener.OnBannerListener;
 import com.zhouyou.http.EasyHttp;
 import com.zhouyou.http.callback.SimpleCallBack;
@@ -35,14 +34,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import androidnews.kiloproject.adapter.ListBannerAdapter;
+import androidnews.kiloproject.entity.data.ListBannerData;
 import androidnews.kiloproject.system.AppConfig;
-import androidnews.kiloproject.util.GlideImageLoader;
 import androidnews.kiloproject.R;
 import androidnews.kiloproject.activity.ZhiHuDetailActivity;
 import androidnews.kiloproject.adapter.ZhihuAdapter;
 import androidnews.kiloproject.entity.data.CacheNews;
 import androidnews.kiloproject.entity.net.ZhihuListData;
-import androidnews.kiloproject.widget.materialviewpager.header.MaterialViewPagerHeaderDecoratorGrid;
+import androidnews.kiloproject.system.base.BaseActivity;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -57,6 +57,7 @@ import static androidnews.kiloproject.system.AppConfig.GET_ZHIHU_LOAD_MORE;
 import static androidnews.kiloproject.system.AppConfig.GET_ZHIHU_REFRESH;
 import static androidnews.kiloproject.system.AppConfig.LIST_TYPE_MULTI;
 import static androidnews.kiloproject.system.AppConfig.TYPE_ZHIHU;
+import static androidx.recyclerview.widget.OrientationHelper.HORIZONTAL;
 
 public class ZhihuRvFragment extends BaseRvFragment {
 
@@ -123,10 +124,8 @@ public class ZhihuRvFragment extends BaseRvFragment {
         else
             mRecyclerView.setLayoutManager(new GridLayoutManager(mActivity, 2));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new MaterialViewPagerHeaderDecoratorGrid());
+//        mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity,HORIZONTAL));
 
-//        refreshLayout.setRefreshHeader(new MaterialHeader(mActivity));
-//        refreshLayout.setRefreshFooter(new ClassicsFooter(mActivity));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
@@ -186,7 +185,8 @@ public class ZhihuRvFragment extends BaseRvFragment {
                                         refreshLayout.finishLoadMore(false);
                                     break;
                             }
-                            ToastUtils.showShort(getString(R.string.load_fail) + e.getMessage());
+                            if (isAdded())
+                                ToastUtils.showShort(getResources().getString(R.string.load_fail) + e.getMessage());
                         }
                     }
 
@@ -285,9 +285,7 @@ public class ZhihuRvFragment extends BaseRvFragment {
                                                         refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                                                     refreshLayout.finishRefresh(true);
                                                     if (!AppConfig.isDisNotice)
-                                                        SnackbarUtils.with(refreshLayout)
-                                                                .setMessage(getString(R.string.load_success))
-                                                                .show();
+                                                        BusUtils.post(BUS_TAG_MAIN_SHOW,getString(R.string.load_success));
                                                     if (contents.getStories().size() < 9)
                                                         requestData(TYPE_LOADMORE);
                                                 } catch (Exception e) {
@@ -312,24 +310,6 @@ public class ZhihuRvFragment extends BaseRvFragment {
                         }
                     }
                 });
-    }
-
-    private void loadFailed(int type) {
-        switch (type) {
-            case TYPE_REFRESH:
-                if (AppConfig.isHaptic)
-                    refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                refreshLayout.finishRefresh(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-            case TYPE_LOADMORE:
-                if (SPUtils.getInstance().getBoolean(CONFIG_AUTO_LOADMORE))
-                    mAdapter.loadMoreFail();
-                else
-                    refreshLayout.finishLoadMore(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-        }
     }
 
     private void createAdapter() {
@@ -358,25 +338,21 @@ public class ZhihuRvFragment extends BaseRvFragment {
             return;
         mRecyclerView.setAdapter(mAdapter);
         if (contents.getTop_stories() != null && contents.getTop_stories().size() > 0) {
-            List<String> imgs = new ArrayList<>();
-            List<String> titles = new ArrayList<>();
+            List<ListBannerData> imgs = new ArrayList<>();
             for (ZhihuListData.TopStoriesBean bean : contents.getTop_stories()) {
-                imgs.add(bean.getImage());
-                titles.add(bean.getTitle());
+                imgs.add(new ListBannerData(bean.getImage(),bean.getTitle()));
             }
             CardView header = (CardView) LayoutInflater.from(mActivity).inflate(R.layout.list_item_card_banner,
                     (ViewGroup) refreshLayout.getParent(), false);
 
             banner = header.findViewById(R.id.banner);
-            banner.setImageLoader(new GlideImageLoader())
-                    .setBannerAnimation(Transformer.FlipHorizontal)
-                    .setBannerStyle(BannerConfig.NUM_INDICATOR_TITLE)
-                    .setDelayTime(5 * 1000)
-                    .setImages(imgs)
-                    .setBannerTitles(titles)
+            banner.addBannerLifecycleObserver((BaseActivity)mActivity)//添加生命周期观察者
+                    .setAdapter(new ListBannerAdapter(imgs))
+                    .setDelayTime(8 * 1000)
+                    .setIndicator(new CircleIndicator(mActivity))
                     .setOnBannerListener(new OnBannerListener() {
                         @Override
-                        public void OnBannerClick(int position) {
+                        public void OnBannerClick(Object data, int position) {
                             try {
                                 Intent intent = new Intent(getActivity(), ZhiHuDetailActivity.class);
                                 intent.putExtra("id", contents.getTop_stories().get(position).getId());
@@ -385,8 +361,8 @@ public class ZhihuRvFragment extends BaseRvFragment {
                                 e.printStackTrace();
                             }
                         }
-                    });
-            banner.start();
+                    }).start();
+
             mAdapter.addHeaderView(header);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ConvertUtils.dp2px(200));
@@ -405,19 +381,5 @@ public class ZhihuRvFragment extends BaseRvFragment {
             mAdapter.disableLoadMoreIfNotFullPage();
             refreshLayout.setEnableLoadMore(false);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (banner != null)
-            banner.startAutoPlay();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (banner != null)
-            banner.stopAutoPlay();
     }
 }

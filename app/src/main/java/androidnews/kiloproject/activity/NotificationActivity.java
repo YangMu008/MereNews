@@ -21,13 +21,13 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
+import com.gyf.cactus.Cactus;
 import com.xw.repo.BubbleSeekBar;
 
 import androidnews.kiloproject.R;
-import androidnews.kiloproject.service.PushIntentService;
 import androidnews.kiloproject.system.AppConfig;
+import androidnews.kiloproject.system.MyApplication;
 import androidnews.kiloproject.system.base.BaseActivity;
-import androidnews.kiloproject.util.PollingUtils;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -209,43 +209,43 @@ public class NotificationActivity extends BaseActivity implements View.OnClickLi
         if (AppConfig.isPush) {
             restartWithAnime(R.id.root_view, R.id.content);
             if (AppConfig.isPushMode)
-                WorkManager.getInstance().cancelUniqueWork(PUSH_WORK_NAME);
+                WorkManager.getInstance(getApplicationContext()).cancelUniqueWork(PUSH_WORK_NAME);
             else
-                PollingUtils.stopPollingService(this, PushIntentService.class, PollingUtils.PUSH_ACTIVE);
+                Cactus.getInstance().unregister(MyApplication.getInstance());
         } else {
-            PollingUtils.stopPollingService(this, PushIntentService.class, PollingUtils.PUSH_ACTIVE);
-            WorkManager.getInstance().cancelUniqueWork(PUSH_WORK_NAME);
+            Cactus.getInstance().unregister(MyApplication.getInstance());
+            WorkManager.getInstance(getApplicationContext()).cancelUniqueWork(PUSH_WORK_NAME);
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN && AppConfig.isPush) {
-                new MaterialStyledDialog.Builder(mActivity)
-                        .setHeaderDrawable(R.drawable.ic_save_white)
-                        .setHeaderScaleType(ImageView.ScaleType.CENTER)
-                        .setTitle(R.string.message_save_title)
-                        .setDescription(getString(R.string.message_save_message))
-                        .setHeaderColor(R.color.colorAccent)
-                        .setPositiveText(android.R.string.ok)
-                        .setNegativeText(android.R.string.no)
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                saveSetting();
-                                dialog.dismiss();
-                            }
-                        })
-                        .onNegative(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                AppConfig.pushTime = mPushTimeSb.getProgress() / 25;
-                                SPUtils.getInstance().put(CONFIG_PUSH_TIME, pushTime);
-                                dialog.dismiss();
-                                finish();
-                            }
-                        })
-                        .show();
+            new MaterialStyledDialog.Builder(mActivity)
+                    .setHeaderDrawable(R.drawable.ic_save_white)
+                    .setHeaderScaleType(ImageView.ScaleType.CENTER)
+                    .setTitle(R.string.message_save_title)
+                    .setDescription(getString(R.string.message_save_message))
+                    .setHeaderColor(R.color.colorAccent)
+                    .setPositiveText(android.R.string.ok)
+                    .setNegativeText(android.R.string.no)
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            saveSetting();
+                            dialog.dismiss();
+                        }
+                    })
+                    .onNegative(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            AppConfig.pushTime = mPushTimeSb.getProgress() / 25;
+                            SPUtils.getInstance().put(CONFIG_PUSH_TIME, pushTime);
+                            dialog.dismiss();
+                            finish();
+                        }
+                    })
+                    .show();
             return true;
         }
         return super.onKeyDown(keyCode, event);

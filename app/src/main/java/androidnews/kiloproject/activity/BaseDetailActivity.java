@@ -1,5 +1,7 @@
 package androidnews.kiloproject.activity;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -11,16 +13,19 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.webkit.DownloadListener;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import com.blankj.utilcode.util.ArrayUtils;
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.RomUtils;
 import com.blankj.utilcode.util.SnackbarUtils;
@@ -31,17 +36,21 @@ import com.github.ksoichiro.android.observablescrollview.ObservableWebView;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.nineoldandroids.view.ViewHelper;
-import com.zhouyou.http.EasyHttp;
-import com.zhouyou.http.callback.DownloadProgressCallBack;
-import com.zhouyou.http.exception.ApiException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import androidnews.kiloproject.R;
 import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.system.base.BaseActivity;
-import androidnews.kiloproject.util.FileCompatUtils;
 
 import static androidnews.kiloproject.system.AppConfig.isAutoNight;
 import static androidnews.kiloproject.system.AppConfig.isNightMode;
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
 
 
 public class BaseDetailActivity extends BaseActivity implements ObservableScrollViewCallbacks {
@@ -117,23 +126,21 @@ public class BaseDetailActivity extends BaseActivity implements ObservableScroll
                         break;
                     case WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE: // 带有链接的图片类型
                     case WebView.HitTestResult.IMAGE_TYPE: // 处理长按图片的菜单项
-                        if (!TextUtils.isEmpty(url)) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                            builder.setTitle(R.string.download)
-                                    .setMessage(R.string.download_img_q)
-                                    .setCancelable(true)
-                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            downloadImg(url);
-                                        }
-                                    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            }).show();
-                        }
+//                        if (!TextUtils.isEmpty(url)) {
+//                            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+//                            builder.setTitle(R.string.download)
+//                                    .setMessage(R.string.download_img_q)
+//                                    .setCancelable(true)
+//                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(DialogInterface dialog, int which) {
+//                                            downloadImg(url);
+//                                        }
+//    }).setNegativeButton(android.R.string.cancel,null).show()
+//                            .getButton(Dialog.BUTTON_NEGATIVE)
+//                            .setBackgroundColor(getResources()
+//                                    .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
+//                        }
                         return true;
                 }
                 return false;
@@ -150,48 +157,6 @@ public class BaseDetailActivity extends BaseActivity implements ObservableScroll
         });
     }
 
-    private void downloadImg(String currentImg) {
-        try {
-            String fileName = currentImg.substring(currentImg.lastIndexOf('/'), currentImg.length());
-            String path = FileCompatUtils.getMediaDir(mActivity);
-            EasyHttp.downLoad(currentImg)
-                    .savePath(path)
-                    .saveName(fileName)//不设置默认名字是时间戳生成的
-                    .execute(new DownloadProgressCallBack<String>() {
-                        @Override
-                        public void update(long bytesRead, long contentLength, boolean done) {
-                        }
-
-                        @Override
-                        public void onStart() {
-                            //开始下载
-                        }
-
-                        @Override
-                        public void onComplete(String path) {
-                            //下载完成，path：下载文件保存的完整路径
-                            SnackbarUtils.with(webView)
-                                    .setMessage(getString(R.string.download_success))
-                                    .show();
-                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
-                        }
-
-                        @Override
-                        public void onError(ApiException e) {
-                            //下载失败
-                            SnackbarUtils.with(webView)
-                                    .setMessage(getString(R.string.download_fail) + e.getMessage())
-                                    .showError();
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-            SnackbarUtils.with(webView)
-                    .setMessage(getString(R.string.download_fail))
-                    .showError();
-        }
-    }
-
     protected void initWeb() {
         WebSettings webSetting = webView.getSettings();
         webSetting.setJavaScriptEnabled(true);
@@ -204,6 +169,8 @@ public class BaseDetailActivity extends BaseActivity implements ObservableScroll
         webSetting.setPluginState(WebSettings.PluginState.ON);
         if (isLollipop())
             webSetting.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        webView.addJavascriptInterface(new MJavascriptInterface(mActivity), "image_listener");
+
         switch (AppConfig.mTextSize) {
             case 0:
                 webSetting.setTextZoom(130);
@@ -311,5 +278,125 @@ public class BaseDetailActivity extends BaseActivity implements ObservableScroll
     protected void hideSkeleton() {
         if (!RomUtils.isMeizu() && AppConfig.isShowSkeleton)
             skeletonScreen.hide();
+    }
+
+    private static final String regEx_style = "<style[^>]*?>[\\s\\S]*?<\\/style>"; //定义style的正则表达式
+    private static final String regEx_html = "<[^>]+>"; //定义HTML标签的正则表达式
+
+    public String deleteHtml(String htmlStr) {
+        Pattern p_style = Pattern.compile(regEx_style, Pattern.CASE_INSENSITIVE);
+        Matcher m_style = p_style.matcher(htmlStr);
+        htmlStr = m_style.replaceAll(""); //过滤style标签
+
+        Pattern p_html = Pattern.compile(regEx_html, Pattern.CASE_INSENSITIVE);
+        Matcher m_html = p_html.matcher(htmlStr);
+        htmlStr = m_html.replaceAll(""); //过滤html标签
+
+        htmlStr = htmlStr.replace(" ", "");
+        htmlStr = htmlStr.replaceAll("\\s*|\t|\r|\n", "");
+        htmlStr = htmlStr.replace("“", "");
+        htmlStr = htmlStr.replace("”", "");
+        htmlStr = htmlStr.replaceAll("　", "");
+        htmlStr = htmlStr.replaceAll("&nbsp;", "");
+
+        if (!TextUtils.isEmpty(htmlStr) && mActivity instanceof ZhiHuDetailActivity) {
+            htmlStr = htmlStr.substring(htmlStr.indexOf("知乎日报每日提供高质量新闻资讯打开App") + 20, htmlStr.indexOf("进入「知乎」查看相关讨论"));
+        }
+
+        if (!TextUtils.isEmpty(htmlStr) && mActivity instanceof SmartisanDetailActivity) {
+            int index = htmlStr.indexOf("本文由头条号授权锤子阅读转码");
+            if (index > 0) {
+                htmlStr = htmlStr.substring(0, htmlStr.indexOf("本文由头条号授权锤子阅读转码"));
+            }
+        }
+
+        if (!TextUtils.isEmpty(htmlStr) && mActivity instanceof NewsDetailActivity) {
+            if (htmlStr.endsWith("</p"))
+                htmlStr = htmlStr.substring(0, htmlStr.length() - 3);
+        }
+
+        if (!TextUtils.isEmpty(htmlStr) && mActivity instanceof GuoKrDetailActivity) {
+            htmlStr = htmlStr.substring(0, htmlStr.indexOf("来自果壳，查看原文"));
+        }
+
+        return htmlStr;
+    }
+
+    public class MJavascriptInterface {
+        private Context mContext;
+        private ArrayList<String> imageUrls;
+
+        public MJavascriptInterface(Context context) {
+            this.mContext = context;
+        }
+
+        @JavascriptInterface
+        public void openImage(String selectImg) {
+            if (!isEmpty(imageUrls)) {
+                Intent intent = new Intent();
+                intent.putExtra("imgs", imageUrls);
+                intent.putExtra("index", imageUrls.indexOf(selectImg));
+                intent.setClass(mContext, GalleyNewsActivity.class);
+                mContext.startActivity(intent);
+            }
+        }
+
+        @JavascriptInterface
+        public void getImg(String[] imgArry) {
+            this.imageUrls = (ArrayList<String>) ArrayUtils.asArrayList(imgArry);
+        }
+    }
+
+    protected String getCssStr(int resId){
+        InputStream is = getResources().openRawResource(resId);
+        byte[] buffer = new byte[0];
+        try {
+            buffer = new byte[is.available()];
+            is.read(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return Base64.encodeToString(buffer, Base64.NO_WRAP);
+    }
+
+    protected String createHtmlText(String title,String source,String time,String body){
+        String colorBody = isNightMode ? "<body bgcolor=\"#212121\" body text=\"#cccccc\">" : "<body text=\"#333\">";
+        String html = "<!DOCTYPE html>" +
+                "<html lang=\"zh\">" +
+                "<head>" +
+                "<meta charset=\"UTF-8\" />" +
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />" +
+                "<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\" />" +
+                "<title>Document</title>" +
+                "<style type=\"text/css\">" +
+                "body{" +
+                "margin-left:18px;" +
+                "margin-right:18px;}" +
+                "p {line-height:36px;}" +
+                "body img{" +
+                "width: 100%;" +
+                "height: 100%;}" +
+                "body video{" +
+                "width: 100%;" +
+                "height: 100%;}" +
+                "p{margin: 25px auto}" +
+                "div{width:100%;height:30px;} #from{width:auto;float:left;color:gray;} #time{width:auto;float:right;color:gray;}" +
+                "</style>" +
+                "</head>" +
+                colorBody +
+                "<p><h2>" + title + "</h2></p>" +
+                "<p><div><div id=\"from\">" + source +
+                "</div><div id=\"time\">" + time + "</div></div></p>" +
+                "<font size=\"4\" face=\"system-ui\">" +
+                body + "</font>" +
+                "</body>" +
+                "</html>";
+        return html;
     }
 }

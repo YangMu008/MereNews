@@ -15,6 +15,8 @@ import androidnews.kiloproject.entity.net.CnBetaListData;
 import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.util.GlideUtils;
 
+import static androidnews.kiloproject.util.TimeUtils.timeStrToTimelineTime;
+
 public class CnBetaAdapter extends BaseQuickAdapter<CnBetaListData.ResultBean, BaseViewHolder> {
     RequestOptions options;
     private Context mContext;
@@ -31,7 +33,7 @@ public class CnBetaAdapter extends BaseQuickAdapter<CnBetaListData.ResultBean, B
     protected void convert(BaseViewHolder helper, CnBetaListData.ResultBean item) {
         try {
             helper.setText(R.id.item_card_text, item.getTitle());
-            helper.setText(R.id.item_card_time, item.getPubtime());
+            helper.setText(R.id.item_card_time, timeStrToTimelineTime(item.getPubtime()));
             helper.setText(R.id.item_card_subtitle, item.getSummary());
         } catch (Exception e) {
             e.printStackTrace();

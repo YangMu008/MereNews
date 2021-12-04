@@ -6,4 +6,11 @@
         android:orderInCategory="80"
         android:icon="@drawable/ic_list_number"
         app:showAsAction="always|withText" />
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        android:title="@string/search"/>
 </menu>

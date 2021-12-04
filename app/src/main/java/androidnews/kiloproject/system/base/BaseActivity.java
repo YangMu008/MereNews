@@ -3,13 +3,13 @@ package androidnews.kiloproject.system.base;
 import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
 
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -17,15 +17,15 @@ import android.view.animation.DecelerateInterpolator;
 
 import com.blankj.swipepanel.SwipePanel;
 import com.blankj.utilcode.util.ActivityUtils;
-import com.blankj.utilcode.util.DeviceUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SizeUtils;
 import com.google.gson.Gson;
+import com.gyf.cactus.Cactus;
 import com.gyf.immersionbar.ImmersionBar;
 
 import androidnews.kiloproject.R;
-import androidnews.kiloproject.activity.MainActivity;
-import androidnews.kiloproject.system.AppConfig;
+import androidnews.kiloproject.activity.NewsMainActivity;
+import androidnews.kiloproject.system.MyApplication;
 
 import static androidnews.kiloproject.system.AppConfig.isNightMode;
 import static androidnews.kiloproject.system.AppConfig.isSwipeBack;
@@ -63,7 +63,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             initSlowly();
             isStart = false;
         }
-        if(isSwipeBack && !(this instanceof MainActivity)) {
+        if (isSwipeBack && !(this instanceof NewsMainActivity)) {
             swipePanel = new SwipePanel(this);
             swipePanel.setLeftEdgeSize(SizeUtils.dp2px(110));// 设置左侧触发阈值 110dp
             swipePanel.setLeftDrawable(R.drawable.ic_arrow_back);// 设置左侧 icon
@@ -128,6 +128,20 @@ public abstract class BaseActivity extends AppCompatActivity {
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT_WATCH;
     }
 
+    public void startTransition(Intent intent,View sharedView) {
+        if (isLollipop()) {
+            ActivityOptionsCompat activityOptions = ActivityOptionsCompat
+                    .makeSceneTransitionAnimation(mActivity, sharedView, sharedView.getTransitionName());
+            try {
+                startActivity(intent, activityOptions.toBundle());
+            } catch (Exception e) {
+                e.printStackTrace();
+                startActivity(intent);
+            }
+        } else
+            startActivity(intent);
+    }
+
     public void finishWithAnime() {
         if (isLollipop())
             finishAfterTransition();
@@ -136,8 +150,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void restartWithAnime(int bgId, int contentId) {
+        if (Cactus.getInstance().isRunning(MyApplication.getInstance())) {
+            Cactus.getInstance().unregister(MyApplication.getInstance());
+        }
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT_WATCH) {
-            findViewById(bgId).setBackgroundColor(getResources().getColor(R.color.slategray));
+            View view = findViewById(bgId);
+            if (view != null)
+                view.setBackgroundColor(getResources().getColor(R.color.slategray));
             animateRevealShow(findViewById(contentId), true, new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {

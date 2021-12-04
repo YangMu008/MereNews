@@ -95,8 +95,8 @@ public class SplashActivity extends AppCompatActivity {
                     public void accept(Boolean aBoolean) throws Exception {
                         new WebView(SplashActivity.this);
                         applyConfig();
-                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
-//                        startActivity(new Intent(SplashActivity.this, NewsMainActivity.class));
+//                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                        startActivity(new Intent(SplashActivity.this, NewsMainActivity.class));
                         finish();
                     }
                 });
@@ -130,29 +130,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void applyConfig() {
-        if (isAutoNight){
-            int currentNightMode = getResources().getConfiguration().uiMode
-                    & Configuration.UI_MODE_NIGHT_MASK;
-            switch (currentNightMode) {
-                case Configuration.UI_MODE_NIGHT_NO:
-                    // Night mode is not active, we're in day time
-                case Configuration.UI_MODE_NIGHT_UNDEFINED:
-                    // We don't know what mode we're in, assume notnight
-                    isNightMode = false;
-                    break;
-                case Configuration.UI_MODE_NIGHT_YES:
-                    // Night mode is active, we're at night!
-                    isNightMode = true;
-                    break;
-            }
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
-            else
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        }else {
-            AppCompatDelegate.setDefaultNightMode(isNightMode ? AppCompatDelegate.MODE_NIGHT_YES :
-                    AppCompatDelegate.MODE_NIGHT_NO);
-        }
 
         int language = SPUtils.getInstance().getInt(CONFIG_LANGUAGE);
         Locale myLocale = null;
@@ -197,13 +174,13 @@ public class SplashActivity extends AppCompatActivity {
                 notifyWork = new PeriodicWorkRequest.Builder(NotifyWork.class, 20, TimeUnit.MINUTES);
                 break;
             case 1:
-                notifyWork = new PeriodicWorkRequest.Builder(NotifyWork.class, 42, TimeUnit.MINUTES);
+                notifyWork = new PeriodicWorkRequest.Builder(NotifyWork.class, 45, TimeUnit.MINUTES);
                 break;
             case 2:
-                notifyWork = new PeriodicWorkRequest.Builder(NotifyWork.class, 160, TimeUnit.MINUTES);
+                notifyWork = new PeriodicWorkRequest.Builder(NotifyWork.class, 120, TimeUnit.MINUTES);
                 break;
             case 3:
-                notifyWork = new PeriodicWorkRequest.Builder(NotifyWork.class, 300, TimeUnit.MINUTES);
+                notifyWork = new PeriodicWorkRequest.Builder(NotifyWork.class, 240, TimeUnit.MINUTES);
                 break;
             default:
                 break;

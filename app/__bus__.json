@@ -1,0 +1,12 @@
+{
+  "BusUtilsClass": "com.blankj.utilcode.util.BusUtils",
+  "rightBus": {
+    "BUS_TAG_MAIN_SHOW": [
+      "{ desc: androidnews.kiloproject.activity.NewsMainActivity#showSnack(java.lang.String text), threadMode: MAIN }"
+    ],
+    "BUS_TAG_MAIN_SHOW_ERROR": [
+      "{ desc: androidnews.kiloproject.activity.NewsMainActivity#showErrorSnack(java.lang.String text), threadMode: MAIN }"
+    ]
+  },
+  "wrongBus": {}
+}

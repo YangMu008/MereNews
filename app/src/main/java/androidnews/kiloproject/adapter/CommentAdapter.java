@@ -16,6 +16,8 @@ import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.util.GlideUtils;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static androidnews.kiloproject.util.TimeUtils.timeStrToTimelineTime;
+
 public class CommentAdapter extends BaseMultiItemQuickAdapter<CommentLevel, BaseViewHolder> {
     RequestOptions options;
     private Context mContext;
@@ -38,7 +40,7 @@ public class CommentAdapter extends BaseMultiItemQuickAdapter<CommentLevel, Base
             case LEVEL_TWO:
                 final CommentLevel data = item;
                 helper.setText(R.id.tv_text, data.getText());
-                helper.setText(R.id.tv_time, data.getTime());
+                helper.setText(R.id.tv_time, timeStrToTimelineTime(data.getTime()));
                 helper.setText(R.id.tv_name, data.getName().replace("&nbsp", " "));
                 if (!AppConfig.isNoImage && GlideUtils.isValidContextForGlide(mContext) && !TextUtils.isEmpty(data.getImgUrl()))
                     Glide.with(mContext)

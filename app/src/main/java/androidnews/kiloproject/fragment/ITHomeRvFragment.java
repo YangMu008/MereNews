@@ -3,6 +3,7 @@ package androidnews.kiloproject.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.text.TextUtils;
@@ -11,13 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.blankj.utilcode.util.BusUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.SnackbarUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 import com.zhouyou.http.EasyHttp;
 import com.zhouyou.http.callback.SimpleCallBack;
 import com.zhouyou.http.exception.ApiException;
@@ -34,7 +35,6 @@ import androidnews.kiloproject.entity.net.ITHomeListData;
 import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.util.ITHomeUtils;
 import androidnews.kiloproject.util.XmlParseUtils;
-import androidnews.kiloproject.widget.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -48,6 +48,7 @@ import static androidnews.kiloproject.system.AppConfig.GET_IT_HOME_LOAD_MORE;
 import static androidnews.kiloproject.system.AppConfig.GET_IT_HOME_REFRESH;
 import static androidnews.kiloproject.system.AppConfig.HOST_IT_HOME;
 import static androidnews.kiloproject.system.AppConfig.LIST_TYPE_MULTI;
+import static androidx.recyclerview.widget.OrientationHelper.HORIZONTAL;
 
 public class ITHomeRvFragment extends BaseRvFragment {
 
@@ -127,10 +128,8 @@ public class ITHomeRvFragment extends BaseRvFragment {
         else
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+//        mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity,HORIZONTAL));
 
-//        refreshLayout.setRefreshHeader(new MaterialHeader(mActivity));
-//        refreshLayout.setRefreshFooter(new ClassicsFooter(mActivity));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
@@ -196,7 +195,8 @@ public class ITHomeRvFragment extends BaseRvFragment {
                                         refreshLayout.finishLoadMore(false);
                                     break;
                             }
-                            ToastUtils.showShort(getString(R.string.load_fail) + e.getMessage());
+                            if (isAdded())
+                                ToastUtils.showShort(getResources().getString(R.string.load_fail) + e.getMessage());
                         }
                     }
 
@@ -267,9 +267,7 @@ public class ITHomeRvFragment extends BaseRvFragment {
                                                         refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                                                     refreshLayout.finishRefresh(true);
                                                     if (!AppConfig.isDisNotice)
-                                                        SnackbarUtils.with(refreshLayout)
-                                                                .setMessage(getString(R.string.load_success))
-                                                                .show();
+                                                        BusUtils.post(BUS_TAG_MAIN_SHOW,getString(R.string.load_success));
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -293,24 +291,6 @@ public class ITHomeRvFragment extends BaseRvFragment {
                 });
     }
 
-    private void loadFailed(int type) {
-        switch (type) {
-            case TYPE_REFRESH:
-                if (AppConfig.isHaptic)
-                    refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                refreshLayout.finishRefresh(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-            case TYPE_LOADMORE:
-                if (SPUtils.getInstance().getBoolean(CONFIG_AUTO_LOADMORE))
-                    mAdapter.loadMoreFail();
-                else
-                    refreshLayout.finishLoadMore(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-        }
-    }
-
     private void createAdapter() {
         if (contents == null || contents.getChannel() == null || contents.getChannel().size() < 1)
             return;
@@ -321,7 +301,7 @@ public class ITHomeRvFragment extends BaseRvFragment {
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 List<ITHomeListData.ItemBean> channels = contents.getChannel();
                 if (channels == null || channels.size() < position) {
-                    SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.load_fail)).show();
+                    BusUtils.post(BUS_TAG_MAIN_SHOW,getString(R.string.load_fail));
                     return;
                 }
                 ITHomeListData.ItemBean bean = channels.get(position);

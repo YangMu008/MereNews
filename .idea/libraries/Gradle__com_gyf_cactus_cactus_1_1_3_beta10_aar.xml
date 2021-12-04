@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="Gradle: com.gyf.cactus:cactus:1.1.3-beta10@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/664f72e621bd86b8a967b6465882b4d5/jetified-cactus-1.1.3-beta10/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/664f72e621bd86b8a967b6465882b4d5/jetified-cactus-1.1.3-beta10/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/664f72e621bd86b8a967b6465882b4d5/jetified-cactus-1.1.3-beta10/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.gyf.cactus/cactus/1.1.3-beta10/49f9ac744e0cbf798ce2d5534dd7cbe2b4ed0575/cactus-1.1.3-beta10-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.gyf.cactus/cactus/1.1.3-beta10/32a15e3c573e2e76140ed10bcceeee39486e38d4/cactus-1.1.3-beta10-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

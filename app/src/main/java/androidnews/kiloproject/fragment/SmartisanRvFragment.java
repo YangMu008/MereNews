@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.text.TextUtils;
@@ -16,9 +17,9 @@ import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.SnackbarUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 import com.zhouyou.http.EasyHttp;
 import com.zhouyou.http.callback.SimpleCallBack;
 import com.zhouyou.http.exception.ApiException;
@@ -33,7 +34,6 @@ import androidnews.kiloproject.adapter.SmartisanAdapter;
 import androidnews.kiloproject.entity.data.CacheNews;
 import androidnews.kiloproject.entity.net.SmartisanListData;
 import androidnews.kiloproject.system.AppConfig;
-import androidnews.kiloproject.widget.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -47,6 +47,7 @@ import static androidnews.kiloproject.system.AppConfig.HOST_SMARTISAN;
 import static androidnews.kiloproject.system.AppConfig.GET_SMARTISAN_LOAD_MORE;
 import static androidnews.kiloproject.system.AppConfig.GET_SMARTISAN_REFRESH;
 import static androidnews.kiloproject.system.AppConfig.LIST_TYPE_MULTI;
+import static androidx.recyclerview.widget.OrientationHelper.HORIZONTAL;
 
 public class SmartisanRvFragment extends BaseRvFragment {
 
@@ -134,10 +135,8 @@ public class SmartisanRvFragment extends BaseRvFragment {
         else
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+//        mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity,HORIZONTAL));
 
-//        refreshLayout.setRefreshHeader(new MaterialHeader(mActivity));
-//        refreshLayout.setRefreshFooter(new ClassicsFooter(mActivity));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
@@ -204,7 +203,8 @@ public class SmartisanRvFragment extends BaseRvFragment {
                                         refreshLayout.finishLoadMore(false);
                                     break;
                             }
-                            ToastUtils.showShort(getString(R.string.load_fail) + e.getMessage());
+                            if (isAdded())
+                                ToastUtils.showShort(getResources().getString(R.string.load_fail) + e.getMessage());
                         }
                     }
 
@@ -307,24 +307,6 @@ public class SmartisanRvFragment extends BaseRvFragment {
                 });
     }
 
-    private void loadFailed(int type) {
-        switch (type) {
-            case TYPE_REFRESH:
-                if (AppConfig.isHaptic)
-                    refreshLayout.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                refreshLayout.finishRefresh(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-            case TYPE_LOADMORE:
-                if (SPUtils.getInstance().getBoolean(CONFIG_AUTO_LOADMORE))
-                    mAdapter.loadMoreFail();
-                else
-                    refreshLayout.finishLoadMore(false);
-                SnackbarUtils.with(refreshLayout).setMessage(getString(R.string.server_fail)).showError();
-                break;
-        }
-    }
-
     private void createAdapter() {
         if (contents == null || contents.getList() == null)
             return;
@@ -346,7 +328,6 @@ public class SmartisanRvFragment extends BaseRvFragment {
                 }
                 startActivity(intent);
                 bean.setReaded(true);
-
             }
         });
 

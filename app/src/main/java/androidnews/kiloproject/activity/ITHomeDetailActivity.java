@@ -36,6 +36,7 @@ import androidnews.kiloproject.R;
 import androidnews.kiloproject.entity.data.CacheNews;
 import androidnews.kiloproject.entity.net.IThomeDetailData;
 import androidnews.kiloproject.util.XmlParseUtils;
+import androidnews.kiloproject.web.DetailWebViewClient;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -49,6 +50,7 @@ import static androidnews.kiloproject.system.AppConfig.GET_IT_HOME_DETAIL;
 import static androidnews.kiloproject.system.AppConfig.HOST_IT_HOME;
 import static androidnews.kiloproject.system.AppConfig.TYPE_ITHOME_START;
 import static androidnews.kiloproject.system.AppConfig.isNightMode;
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
 
 public class ITHomeDetailActivity extends BaseDetailActivity {
     private String html;
@@ -301,39 +303,7 @@ public class ITHomeDetailActivity extends BaseDetailActivity {
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
-                    String colorBody = isNightMode ? "<body bgcolor=\"#212121\" body text=\"#ccc\">" : "<body text=\"#333\">";
-                    html = "<!DOCTYPE html>" +
-                            "<html lang=\"zh\">" +
-                            "<head>" +
-                            "<meta charset=\"UTF-8\" />" +
-                            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />" +
-                            "<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\" />" +
-                            "<title>Document</title>" +
-                            "<style type=\"text/css\">" +
-                            "body{\n" +
-                            "margin-left:18px;\n" +
-                            "margin-right:18px;\n" +
-                            "}" +
-                            "p {line-height:36px;}" +
-                            "body img{" +
-                            "width: 100%;" +
-                            "height: 100%;" +
-                            "}" +
-                            "body video{" +
-                            "width: 100%;" +
-                            "height: 100%;" +
-                            "}" +
-                            "p{margin: 25px auto}" +
-                            "div{width:100%;height:30px;} #from{width:auto;float:left;color:gray;} #time{width:auto;float:right;color:gray;}" +
-                            "</style>" +
-                            "</head>" +
-                            colorBody
-                            + "<p><h2>" + title + "</h2></p>"
-                            + "<p><div><div id=\"from\">" + source +
-                            "</div><div id=\"time\">" + pTime + "</div></div></p>"
-                            + "<font size=\"4\">"
-                            + body + "</font></body>" +
-                            "</html>";
+                    html = createHtmlText(title,source,pTime,body);
                     html = checkVideoWidth(html);
                     e.onNext(true);
                     e.onComplete();
@@ -370,7 +340,7 @@ public class ITHomeDetailActivity extends BaseDetailActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (list != null && list.size() > 0)
+                if (isEmpty(list))
                     for (CacheNews cacheNews : list) {
                         if (cacheNews.getType() == type)
                             return;
@@ -396,7 +366,7 @@ public class ITHomeDetailActivity extends BaseDetailActivity {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        if (list != null && list.size() > 0) {
+        if (!isEmpty(list)) {
             for (CacheNews cacheNews : list) {
                 if (cacheNews.getType() == CACHE_COLLECTION) {
                     if (isClear) {
@@ -448,7 +418,7 @@ public class ITHomeDetailActivity extends BaseDetailActivity {
             }
         });
 
-        webView.setWebViewClient(new WebViewClient() {
+        webView.setWebViewClient(new DetailWebViewClient() {
             // 拦截页面加载，返回true表示宿主app拦截并处理了该url，否则返回false由当前WebView处理
             // 此方法在API24被废弃，不处理POST请求
             public boolean shouldOverrideUrlLoading(WebView view, String url) {

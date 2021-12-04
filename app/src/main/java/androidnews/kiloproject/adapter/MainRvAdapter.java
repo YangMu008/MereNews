@@ -1,10 +1,8 @@
 package androidnews.kiloproject.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,26 +18,27 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.youth.banner.Banner;
-import com.youth.banner.BannerConfig;
-import com.youth.banner.Transformer;
+import com.youth.banner.indicator.CircleIndicator;
 import com.youth.banner.listener.OnBannerListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidnews.kiloproject.entity.data.ListBannerData;
 import androidnews.kiloproject.system.AppConfig;
-import androidnews.kiloproject.util.GlideImageLoader;
 import androidnews.kiloproject.R;
-import androidnews.kiloproject.activity.GalleyActivity;
+import androidnews.kiloproject.activity.GalleyNewsActivity;
 import androidnews.kiloproject.activity.NewsDetailActivity;
 import androidnews.kiloproject.entity.net.NewMainListData;
+import androidnews.kiloproject.system.base.BaseActivity;
 import androidnews.kiloproject.util.GlideUtils;
 
 import static androidnews.kiloproject.fragment.BaseRvFragment.CELL;
 import static androidnews.kiloproject.fragment.BaseRvFragment.CELL_EXTRA;
 import static androidnews.kiloproject.fragment.BaseRvFragment.HEADER;
-import static androidnews.kiloproject.system.base.BaseActivity.isLollipop;
+import static androidnews.kiloproject.util.TimeUtils.timeStrToTimelineTime;
 import static com.blankj.utilcode.util.ActivityUtils.startActivity;
+import static com.blankj.utilcode.util.ObjectUtils.isNotEmpty;
 
 public class MainRvAdapter extends BaseMultiItemQuickAdapter<NewMainListData, BaseViewHolder> {
     RequestOptions options;
@@ -62,24 +61,19 @@ public class MainRvAdapter extends BaseMultiItemQuickAdapter<NewMainListData, Ba
         switch (helper.getItemViewType()) {
             case HEADER:
                 Banner banner = (Banner) helper.getView(R.id.banner);
-                List<String> imgs = new ArrayList<>();
-                List<String> titles = new ArrayList<>();
-                titles.add(item.getTitle());
-                imgs.add(item.getImgsrc());
+                List<ListBannerData> imgs = new ArrayList<>();
+                imgs.add(new ListBannerData(item.getImgsrc(),item.getTitle()));
                 if (item.getAds() != null)
                     for (NewMainListData.AdsBean bean : item.getAds()) {
-                        titles.add(bean.getTitle());
-                        imgs.add(bean.getImgsrc());
+                        imgs.add(new ListBannerData(bean.getImgsrc(),bean.getTitle()));
                     }
-                banner.setImageLoader(new GlideImageLoader())
-                        .setBannerAnimation(Transformer.FlipHorizontal)
-                        .setBannerStyle(BannerConfig.NUM_INDICATOR_TITLE)
-                        .setDelayTime(5 * 1000)
-                        .setImages(imgs)
-                        .setBannerTitles(titles)
+                banner.addBannerLifecycleObserver((BaseActivity)mContext)//添加生命周期观察者
+                        .setAdapter(new ListBannerAdapter(imgs))
+                        .setDelayTime(8 * 1000)
+                        .setIndicator(new CircleIndicator(mContext))
                         .setOnBannerListener(new OnBannerListener() {
                             @Override
-                            public void OnBannerClick(int position) {
+                            public void OnBannerClick(Object data, int position) {
                                 String skipID = "";
                                 String rawId;
                                 if (position == 0)
@@ -91,19 +85,9 @@ public class MainRvAdapter extends BaseMultiItemQuickAdapter<NewMainListData, Ba
                                     int index = rawId.lastIndexOf("|");
                                     if (index != -1) {
                                         skipID = rawId.substring(index - 4, rawId.length());
-                                        intent = new Intent(mContext, GalleyActivity.class);
+                                        intent = new Intent(mContext, GalleyNewsActivity.class);
                                         intent.putExtra("skipID", skipID.replace("|", "/") + ".json");
-                                        if (isLollipop()) {
-                                            ActivityOptionsCompat activityOptions = ActivityOptionsCompat
-                                                    .makeSceneTransitionAnimation((Activity) mContext, banner, banner.getTransitionName());
-                                            try {
-                                                startActivity(intent, activityOptions.toBundle());
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                                startActivity(intent);
-                                            }
-                                        } else
-                                            startActivity(intent);
+                                        ((BaseActivity)mContext).startTransition(intent,banner);
                                     } else {
                                         ToastUtils.showShort(R.string.server_fail);
                                         return;
@@ -114,13 +98,13 @@ public class MainRvAdapter extends BaseMultiItemQuickAdapter<NewMainListData, Ba
                                     startActivity(intent);
                                 }
                             }
-                        });
-                banner.start();
+                        }).start();
+
                 break;
             case CELL:
                 try {
                     helper.setText(R.id.item_card_text, item.getTitle());
-                    helper.setText(R.id.item_card_time, item.getPtime().substring(5, item.getPtime().length()));
+                    helper.setText(R.id.item_card_time, timeStrToTimelineTime(item.getPtime()));
                     helper.setText(R.id.item_card_info, item.getSource().replace("$", ""));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -132,8 +116,10 @@ public class MainRvAdapter extends BaseMultiItemQuickAdapter<NewMainListData, Ba
                     helper.setTextColor(R.id.item_card_text,
                             mContext.getResources().getColor(R.color.main_text_color_dark));
                 if (TextUtils.isEmpty(item.getImgsrc())) {
-                    helper.setText(R.id.item_card_subtitle, item.getDigest().replace("&nbsp", ""));
-                    helper.setImageResource(R.id.item_card_img, R.color.white);
+                    if (isNotEmpty(item.getDigest())) {
+                        helper.setText(R.id.item_card_subtitle, item.getDigest().replace("&nbsp", ""));
+                        helper.setImageResource(R.id.item_card_img, R.color.white);
+                    }
                 } else {
                     if (!AppConfig.isNoImage && GlideUtils.isValidContextForGlide(mContext))
                         Glide.with(mContext).load(item.getImgsrc())
@@ -149,7 +135,7 @@ public class MainRvAdapter extends BaseMultiItemQuickAdapter<NewMainListData, Ba
                 TextView tvInfo = helper.getView(R.id.item_card_info);
                 try {
                     helper.setText(R.id.item_card_text, item.getTitle());
-                    helper.setText(R.id.item_card_time, item.getPtime().substring(5, item.getPtime().length()));
+                    helper.setText(R.id.item_card_time, timeStrToTimelineTime(item.getPtime()));
                     tvInfo.setText(item.getSource().replace("$", ""));
                 } catch (Exception e) {
                     e.printStackTrace();

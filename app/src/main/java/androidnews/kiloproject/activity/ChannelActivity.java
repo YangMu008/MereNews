@@ -3,9 +3,12 @@ package androidnews.kiloproject.activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 
+import com.chad.library.adapter.base.callback.ItemDragAndSwipeCallback;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,14 +20,12 @@ import android.view.MenuItem;
 
 import com.blankj.utilcode.util.NetworkUtils;
 import com.blankj.utilcode.util.SPUtils;
-import com.chad.library.adapter.base.callback.ItemDragAndSwipeCallback;
 import com.chad.library.adapter.base.listener.OnItemDragListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import androidnews.kiloproject.R;
-import androidnews.kiloproject.adapter.ChannelPagerAdapter;
 import androidnews.kiloproject.adapter.ItemDragAdapter;
 import androidnews.kiloproject.fragment.ChannelFragment;
 import androidnews.kiloproject.system.base.BaseActivity;
@@ -57,7 +58,7 @@ public class ChannelActivity extends BaseActivity {
     Toolbar toolbar;
     TabLayout tabLayout;
     ViewPager mViewpager;
-    ChannelPagerAdapter adapter;
+    FragmentPagerAdapter adapter;
     private List<Fragment> fragmentList = new ArrayList<Fragment>();
     String[] channnelTabs;
     int[] sortArray;
@@ -171,7 +172,18 @@ public class ChannelActivity extends BaseActivity {
                         fragmentList.add(ChannelFragment.newInstance(TYPE_ITHOME_START, TYPE_ITHOME_END_USED));
                         fragmentList.add(ChannelFragment.newInstance(TYPE_PRESS_START, TYPE_PRESS_END_USED));
                         fragmentList.add(ChannelFragment.newInstance(TYPE_SMARTISAN_START,TYPE_SMARTISAN_END_USED));
-                        adapter = new ChannelPagerAdapter(getSupportFragmentManager(), fragmentList);
+                        adapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+                            @NonNull
+                            @Override
+                            public Fragment getItem(int position) {
+                                return fragmentList.get(position);
+                            }
+
+                            @Override
+                            public int getCount() {
+                                return fragmentList.size();
+                            }
+                        };
                         mViewpager.setOffscreenPageLimit(fragmentList.size());      //静态页面,就都保存在内存里了
                         mViewpager.setAdapter(adapter);
                         for (int i : sortArray) {

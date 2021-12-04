@@ -15,14 +15,6 @@ public class BlockItem extends LitePalSupport{
         this.text = text;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public int getType() {
         return type;
     }

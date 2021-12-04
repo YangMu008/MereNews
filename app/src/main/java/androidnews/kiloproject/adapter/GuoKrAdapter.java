@@ -15,6 +15,8 @@ import androidnews.kiloproject.entity.net.GuoKrListData;
 import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.util.GlideUtils;
 
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
+
 public class GuoKrAdapter extends BaseQuickAdapter<GuoKrListData.ResultBean, BaseViewHolder> {
     RequestOptions options;
     private Context mContext;
@@ -37,9 +39,11 @@ public class GuoKrAdapter extends BaseQuickAdapter<GuoKrListData.ResultBean, Bas
             helper.setTextColor(R.id.item_card_text,
                     mContext.getResources().getColor(R.color.main_text_color_dark));
 
-        if (!AppConfig.isNoImage && GlideUtils.isValidContextForGlide(mContext))
+        if (!AppConfig.isNoImage &&
+                GlideUtils.isValidContextForGlide(mContext) &&
+                !isEmpty(item.getImages()))
                 Glide.with(mContext)
-                        .load(item.getHeadline_img())
+                        .load(item.getImages().get(0))
                         .apply(options)
                         .into((ImageView) helper.getView(R.id.item_card_img));
         else

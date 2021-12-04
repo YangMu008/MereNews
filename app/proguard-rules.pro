@@ -133,3 +133,7 @@
  -keepclassmembers  class **$** extends com.chad.library.adapter.base.BaseViewHolder {
       <init>(...);
  }
+
+ -keep class com.gyf.cactus.entity.* {*;}
+
+ -keep class com.lzf.easyfloat.** {*;}

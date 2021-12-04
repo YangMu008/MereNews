@@ -13,7 +13,7 @@
         android:layout_marginLeft="@dimen/margin_large"
         android:layout_marginStart="@dimen/margin_large"
         android:layout_marginTop="@dimen/margin_large"
-        android:src="@drawable/ic_user_icon"
+        app:srcCompat="@drawable/ic_user_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,6 +37,7 @@
         android:layout_marginTop="@dimen/margin_normal"
         android:textColor="@color/main_text_color_dark"
         android:textSize="@dimen/text_small"
+        android:textIsSelectable="true"
         app:layout_constraintEnd_toEndOf="@id/tv_time"
         app:layout_constraintStart_toStartOf="@id/iv_avatar"
         app:layout_constraintTop_toBottomOf="@id/iv_avatar" />

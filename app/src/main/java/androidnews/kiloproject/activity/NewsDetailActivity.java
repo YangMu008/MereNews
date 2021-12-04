@@ -1,48 +1,41 @@
 package androidnews.kiloproject.activity;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.TypedArray;
 import android.net.Uri;
 
 import androidx.appcompat.widget.Toolbar;
 
-import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
-import android.view.animation.BounceInterpolator;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import com.blankj.utilcode.util.ConvertUtils;
-import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ScreenUtils;
 import com.blankj.utilcode.util.SnackbarUtils;
 import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.blankj.utilcode.util.Utils;
 import com.bumptech.glide.Glide;
-import com.yhao.floatwindow.FloatWindow;
-import com.yhao.floatwindow.MoveType;
-import com.yhao.floatwindow.PermissionListener;
-import com.yhao.floatwindow.Screen;
-import com.yhao.floatwindow.ViewStateListener;
+import com.lzf.easyfloat.EasyFloat;
+import com.lzf.easyfloat.enums.ShowPattern;
+import com.lzf.easyfloat.enums.SidePattern;
+import com.lzf.easyfloat.interfaces.OnFloatCallbacks;
 import com.zhouyou.http.EasyHttp;
 import com.zhouyou.http.callback.SimpleCallBack;
 import com.zhouyou.http.exception.ApiException;
 
 import org.litepal.LitePal;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +43,8 @@ import androidnews.kiloproject.R;
 import androidnews.kiloproject.entity.data.CacheNews;
 import androidnews.kiloproject.entity.net.NewsDetailData;
 import androidnews.kiloproject.system.AppConfig;
+import androidnews.kiloproject.util.FileCompatUtils;
+import androidnews.kiloproject.web.DetailWebViewClient;
 import androidnews.kiloproject.util.GlideUtils;
 import androidnews.kiloproject.widget.MyJzvdStd;
 import cn.jzvd.Jzvd;
@@ -65,6 +60,7 @@ import static androidnews.kiloproject.entity.data.CacheNews.CACHE_HISTORY;
 import static androidnews.kiloproject.system.AppConfig.GET_NEWS_DETAIL;
 import static androidnews.kiloproject.system.AppConfig.TYPE_NETEASE_START;
 import static androidnews.kiloproject.system.AppConfig.isNightMode;
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
 
 public class NewsDetailActivity extends BaseDetailActivity {
     private String html;
@@ -170,61 +166,82 @@ public class NewsDetailActivity extends BaseDetailActivity {
                         }
                         break;
                     case R.id.action_video:
-                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                            if (videoList.size() > 0) {
-                                View view = getLayoutInflater().inflate(R.layout.layout_pip_video,null);
-                                MyJzvdStd videoView = view.findViewById(R.id.item_card_vid);
-                                loadVideo(videoView);
-
-                                view.findViewById(R.id.btn_exit).setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        FloatWindow.destroy("Video");
-                                        Jzvd.releaseAllVideos();
-                                    }
-                                });
-                                view.findViewById(R.id.btn_previous).setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (videoIndex == 0){
-                                            SnackbarUtils.with(toolbar).setMessage(getString(R.string.no_video)).show();
-                                        }else {
-                                            videoIndex--;
-                                            loadVideo(videoView);
-                                        }
-                                    }
-                                });
-                                view.findViewById(R.id.btn_next).setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        if (videoIndex == (videoList.size() - 1)){
-                                            SnackbarUtils.with(toolbar).setMessage(getString(R.string.no_video)).show();
-                                        }else {
-                                            videoIndex++;
-                                            loadVideo(videoView);
-                                        }
-                                    }
-                                });
-
-                                FloatWindow
-                                        .with(mActivity.getApplicationContext())
-                                        .setView(view)
-                                        .setWidth(Screen.width, 0.8f) //设置悬浮控件宽高
-                                        .setHeight(Screen.width, 0.7f)
-                                        .setX(0)
-                                        .setY(0)
-                                        .setMoveType(MoveType.slide, 50, 50)
-                                        .setMoveStyle(500, new BounceInterpolator())
-                                        .setViewStateListener(mViewStateListener)
-                                        .setPermissionListener(mPermissionListener)
-                                        .setDesktopShow(true)
+                        if (videoList.size() > 0) {
+                            if (EasyFloat.getFloatView(mActivity, "Video") == null) {
+                                EasyFloat.with(mActivity)
+                                        .setLayout(R.layout.layout_pip_video)
+                                        .setShowPattern(ShowPattern.CURRENT_ACTIVITY)
+                                        .setSidePattern(SidePattern.RESULT_HORIZONTAL)
                                         .setTag("Video")
-                                        .build();
-                                FloatWindow.get("Video").show();
-                            } else
-                                SnackbarUtils.with(toolbar).setMessage(getString(R.string.no_video)).show();
+                                        .setGravity(Gravity.TOP, 0, 200)
+                                        .registerCallbacks(new OnFloatCallbacks() {
+                                            @Override
+                                            public void createdResult(boolean b, String s, View view) {
+                                                if (view != null) {
+                                                    MyJzvdStd videoView = view.findViewById(R.id.item_card_vid);
+                                                    loadVideo(videoView);
+
+                                                    view.findViewById(R.id.btn_exit).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            Jzvd.releaseAllVideos();
+                                                            EasyFloat.hide(mActivity, "Video");
+                                                        }
+                                                    });
+                                                    view.findViewById(R.id.btn_previous).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            if (videoIndex == 0) {
+                                                                SnackbarUtils.with(toolbar).setMessage(getString(R.string.no_video)).show();
+                                                            } else {
+                                                                videoIndex--;
+                                                                loadVideo(videoView);
+                                                            }
+                                                        }
+                                                    });
+                                                    view.findViewById(R.id.btn_next).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            if (videoIndex == (videoList.size() - 1)) {
+                                                                SnackbarUtils.with(toolbar).setMessage(getString(R.string.no_video)).show();
+                                                            } else {
+                                                                videoIndex++;
+                                                                loadVideo(videoView);
+                                                            }
+                                                        }
+                                                    });
+
+                                                    view.findViewById(R.id.btn_download).setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            FileCompatUtils.downloadFile(mActivity, videoList.get(videoIndex).getUrl_mp4(), webView, true);
+                                                        }
+                                                    });
+                                                }
+                                            }
+
+                                            @Override
+                                            public void show(View view) { }
+
+                                            @Override
+                                            public void hide(View view) { }
+
+                                            @Override
+                                            public void dismiss() { }
+
+                                            @Override
+                                            public void touchEvent(View view, MotionEvent motionEvent) { }
+
+                                            @Override
+                                            public void drag(View view, MotionEvent motionEvent) { }
+
+                                            @Override
+                                            public void dragEnd(View view) { }
+                                        })
+                                        .show();
+                            } else EasyFloat.show(mActivity, "Video");
                         } else
-                            SnackbarUtils.with(toolbar).setMessage(getString(R.string.not_support)).show();
+                            SnackbarUtils.with(toolbar).setMessage(getString(R.string.no_video)).show();
                         break;
                 }
                 return false;
@@ -359,39 +376,8 @@ public class NewsDetailActivity extends BaseDetailActivity {
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
-                String colorBody = isNightMode ? "<body bgcolor=\"#212121\" body text=\"#ccc\">" : "<body text=\"#333\">";
-                html = "<!DOCTYPE html>" +
-                        "<html lang=\"zh\">" +
-                        "<head>" +
-                        "<meta charset=\"UTF-8\" />" +
-                        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />" +
-                        "<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\" />" +
-                        "<title>Document</title>" +
-                        "<style type=\"text/css\">" +
-                        "body{\n" +
-                        "margin-left:18px;\n" +
-                        "margin-right:18px;\n" +
-                        "}" +
-                        "p {line-height:36px;}" +
-                        "body img{" +
-                        "width: 100%;" +
-                        "height: 100%;" +
-                        "}" +
-                        "body video{" +
-                        "width: 100%;" +
-                        "height: 100%;" +
-                        "}" +
-                        "p{margin: 25px auto}" +
-                        "div{width:100%;height:30px;} #from{width:auto;float:left;color:gray;} #time{width:auto;float:right;color:gray;}" +
-                        "</style>" +
-                        "</head>" +
-                        colorBody
-                        + "<p><h2>" + title + "</h2></p>"
-                        + "<p><div><div id=\"from\">" + source +
-                        "</div><div id=\"time\">" + pTime + "</div></div></p>"
-                        + "<font size=\"4\">"
-                        + body + "</font></body>" +
-                        "</html>";
+
+                html = createHtmlText(title, source, pTime, body);
                 if (currentData.getVideo() != null) {
                     for (NewsDetailData.VideoBean videoBean : currentData.getVideo()) {
                         String mediaUrl = videoBean.getM3u8Hd_url();
@@ -403,6 +389,9 @@ public class NewsDetailActivity extends BaseDetailActivity {
                         }
                         if (TextUtils.isEmpty(mediaUrl)) {
                             mediaUrl = videoBean.getMp4_url();
+                        }
+                        if (TextUtils.isEmpty(mediaUrl)) {
+                            mediaUrl = videoBean.getUrl_mp4();
                         }
 
                         if (mediaUrl.endsWith(".mp3")) {       //音频
@@ -418,6 +407,7 @@ public class NewsDetailActivity extends BaseDetailActivity {
                                 html = html.replace(videoBean.getRef(),
                                         "<video src=\"" + mediaUrl +
                                                 "\" controls=\"controls\" poster=\"" + videoBean.getCover() + "\"type=\"video/mp4\"></video>");
+                            videoBean.setUrl_mp4(mediaUrl); //自用链接,提供给悬浮窗和下载
                             videoList.add(videoBean);
                         }
                     }
@@ -472,56 +462,6 @@ public class NewsDetailActivity extends BaseDetailActivity {
         return data;
     }
 
-    private PermissionListener mPermissionListener = new PermissionListener() {
-        @Override
-        public void onSuccess() {
-            LogUtils.d("permission success");
-        }
-
-        @Override
-        public void onFail() {
-            SnackbarUtils.with(toolbar).setMessage(getString(R.string.message_permission_rationale)).showError();
-            LogUtils.d("permission fail");
-        }
-    };
-
-    private ViewStateListener mViewStateListener = new ViewStateListener() {
-        @Override
-        public void onPositionUpdate(int x, int y) {
-            Log.d("FloatWindow", "onPositionUpdate: x=" + x + " y=" + y);
-        }
-
-        @Override
-        public void onShow() {
-            Log.d("FloatWindow", "onShow");
-        }
-
-        @Override
-        public void onHide() {
-            Log.d("FloatWindow", "onHide");
-        }
-
-        @Override
-        public void onDismiss() {
-            Log.d("FloatWindow", "onDismiss");
-        }
-
-        @Override
-        public void onMoveAnimStart() {
-            Log.d("FloatWindow", "onMoveAnimStart");
-        }
-
-        @Override
-        public void onMoveAnimEnd() {
-            Log.d("FloatWindow", "onMoveAnimEnd");
-        }
-
-        @Override
-        public void onBackToDesktop() {
-            Log.d("FloatWindow", "onBackToDesktop");
-        }
-    };
-
     private void saveCacheAsyn(int type) {
         new Thread(new Runnable() {
             @Override
@@ -534,7 +474,7 @@ public class NewsDetailActivity extends BaseDetailActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (list != null && list.size() > 0)
+                if (!isEmpty(list))
                     for (CacheNews cacheNews : list) {
                         if (cacheNews.getType() == type)
                             return;
@@ -558,7 +498,7 @@ public class NewsDetailActivity extends BaseDetailActivity {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        if (list != null && list.size() > 0) {
+        if (!isEmpty(list)) {
             for (CacheNews cacheNews : list) {
                 if (cacheNews.getType() == CACHE_COLLECTION) {
                     if (isClear) {
@@ -604,6 +544,8 @@ public class NewsDetailActivity extends BaseDetailActivity {
 
             }
         });
+
+        webView.setWebViewClient(new DetailWebViewClient());
     }
 
     private void fullScreen(boolean isStart) {
@@ -628,7 +570,7 @@ public class NewsDetailActivity extends BaseDetailActivity {
         }
     }
 
-    private void loadVideo(MyJzvdStd videoView){
+    private void loadVideo(MyJzvdStd videoView) {
         NewsDetailData.VideoBean videoItem = videoList.get(videoIndex);
         videoView.setUp(videoItem.getUrl_mp4(), videoItem.getAlt(), Jzvd.SCREEN_WINDOW_NORMAL);
         if (!TextUtils.isEmpty(videoItem.getCover()) && GlideUtils.isValidContextForGlide(mActivity))
@@ -637,7 +579,7 @@ public class NewsDetailActivity extends BaseDetailActivity {
                     .into(videoView.thumbImageView);
     }
 
-    private void loadError(){
+    private void loadError() {
         ToastUtils.showShort(getString(R.string.server_fail));
         finish();
     }

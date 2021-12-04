@@ -35,6 +35,7 @@ import java.util.List;
 
 import androidnews.kiloproject.R;
 import androidnews.kiloproject.entity.data.CacheNews;
+import androidnews.kiloproject.web.DetailWebViewClient;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -48,6 +49,7 @@ import static androidnews.kiloproject.system.AppConfig.HOST_GUO_KR_DETAIL;
 import static androidnews.kiloproject.system.AppConfig.GET_GUO_KR_DETAIL;
 import static androidnews.kiloproject.system.AppConfig.TYPE_GUOKR;
 import static androidnews.kiloproject.system.AppConfig.isNightMode;
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
 
 public class GuoKrDetailActivity extends BaseDetailActivity {
     private String currentUrl;
@@ -186,7 +188,7 @@ public class GuoKrDetailActivity extends BaseDetailActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (list != null && list.size() > 0)
+                if (!isEmpty(list))
                     for (CacheNews cacheNews : list) {
                         if (cacheNews.getType() == type)
                             return;
@@ -211,7 +213,7 @@ public class GuoKrDetailActivity extends BaseDetailActivity {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        if (list != null && list.size() > 0) {
+        if (!isEmpty(list)) {
             for (CacheNews cacheNews : list) {
                 if (cacheNews.getType() == CACHE_COLLECTION) {
                     if (isClear) {
@@ -259,35 +261,21 @@ public class GuoKrDetailActivity extends BaseDetailActivity {
     @Override
     protected void initWeb() {
         super.initWeb();
-        webView.addJavascriptInterface(new InJavaScriptLocalObj(), "java_obj");
+        webView.addJavascriptInterface(new GuoKrJavaScriptLocalObj(), "guokr_obj");
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 if (webView == null)return;
                 if (isNightMode) {
-                    InputStream is = getResources().openRawResource(R.raw.night);
-                    byte[] buffer = new byte[0];
-                    try {
-                        buffer = new byte[is.available()];
-                        is.read(buffer);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    String nightCode = Base64.encodeToString(buffer, Base64.NO_WRAP);
+                    String nightCode = getCssStr(R.raw.night);
                     webView.loadUrl("javascript:(function() {" + "var parent = document.getElementsByTagName('head').item(0);" + "var style = document.createElement('style');" + "style.type = 'text/css';" + "style.innerHTML = window.atob('" + nightCode + "');" + "parent.appendChild(style)" + "})();");
                 }
                 super.onProgressChanged(view, newProgress);
             }
         });
 
-        webView.setWebViewClient(new WebViewClient(){
+        webView.setWebViewClient(new WebViewClient(){       //果壳特殊处理一下
             // 拦截页面加载，返回true表示宿主app拦截并处理了该url，否则返回false由当前WebView处理
             // 此方法在API24被废弃，不处理POST请求
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -317,7 +305,7 @@ public class GuoKrDetailActivity extends BaseDetailActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                view.loadUrl("javascript:window.java_obj.getSource('<head>'+" +
+                view.loadUrl("javascript:window.guokr_obj.getSource('<head>'+" +
                         "document.getElementsByTagName('html')[0].innerHTML+'</head>');");
                 super.onPageFinished(view, url);
             }
@@ -328,7 +316,7 @@ public class GuoKrDetailActivity extends BaseDetailActivity {
      * 逻辑处理
      * @author linzewu
      */
-    final class InJavaScriptLocalObj {
+    final class GuoKrJavaScriptLocalObj {
         @JavascriptInterface
         public void getSource(String html) {
             Log.d("html=", html);

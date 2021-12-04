@@ -15,6 +15,9 @@ import androidnews.kiloproject.entity.net.PressListData;
 import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.util.GlideUtils;
 
+import static androidnews.kiloproject.util.TimeUtils.timeStrToTimelineTime;
+import static com.blankj.utilcode.util.ObjectUtils.isNotEmpty;
+
 public class PressRvAdapter extends BaseQuickAdapter<PressListData, BaseViewHolder> {
     RequestOptions options;
     private Context mContext;
@@ -31,7 +34,7 @@ public class PressRvAdapter extends BaseQuickAdapter<PressListData, BaseViewHold
     protected void convert(BaseViewHolder helper, PressListData item) {
         try {
             helper.setText(R.id.item_card_text, item.getTitle());
-            helper.setText(R.id.item_card_time, item.getPtime().substring(5, item.getPtime().length()));
+            helper.setText(R.id.item_card_time, timeStrToTimelineTime(item.getPtime()));
             helper.setText(R.id.item_card_info, item.getSource().replace("$", ""));
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,8 +46,10 @@ public class PressRvAdapter extends BaseQuickAdapter<PressListData, BaseViewHold
             helper.setTextColor(R.id.item_card_text,
                     mContext.getResources().getColor(R.color.main_text_color_dark));
         if (TextUtils.isEmpty(item.getImgsrc())) {
-            helper.setText(R.id.item_card_subtitle, item.getDigest().replace("&nbsp", ""));
-            helper.setImageResource(R.id.item_card_img, R.color.white);
+            if (isNotEmpty(item.getDigest())) {
+                helper.setText(R.id.item_card_subtitle, item.getDigest().replace("&nbsp", ""));
+                helper.setImageResource(R.id.item_card_img, R.color.white);
+            }
         } else {
             if (!AppConfig.isNoImage && GlideUtils.isValidContextForGlide(mContext))
                 Glide.with(mContext).load(item.getImgsrc())

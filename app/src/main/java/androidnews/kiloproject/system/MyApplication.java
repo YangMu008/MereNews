@@ -3,24 +3,41 @@ package androidnews.kiloproject.system;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.multidex.MultiDex;
+
+import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.PathUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.Utils;
-import com.scwang.smartrefresh.header.MaterialHeader;
-import com.scwang.smartrefresh.layout.SmartRefreshLayout;
-import com.scwang.smartrefresh.layout.api.DefaultRefreshFooterCreator;
-import com.scwang.smartrefresh.layout.api.DefaultRefreshHeaderCreator;
-import com.scwang.smartrefresh.layout.api.RefreshFooter;
-import com.scwang.smartrefresh.layout.api.RefreshHeader;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.load.engine.cache.DiskCache;
+import com.bumptech.glide.load.engine.cache.DiskLruCacheWrapper;
+import com.gyf.cactus.Cactus;
+import com.gyf.cactus.callback.CactusCallback;
+import com.lzf.easyfloat.EasyFloat;
+import com.scwang.smart.refresh.footer.ClassicsFooter;
+import com.scwang.smart.refresh.header.MaterialHeader;
+import com.scwang.smart.refresh.layout.SmartRefreshLayout;
+import com.scwang.smart.refresh.layout.api.RefreshFooter;
+import com.scwang.smart.refresh.layout.api.RefreshHeader;
+import com.scwang.smart.refresh.layout.api.RefreshLayout;
+import com.scwang.smart.refresh.layout.listener.DefaultRefreshFooterCreator;
+import com.scwang.smart.refresh.layout.listener.DefaultRefreshHeaderCreator;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.zhouyou.http.EasyHttp;
 
 import org.litepal.LitePal;
 
+import java.io.File;
+
 import androidnews.kiloproject.R;
+import androidnews.kiloproject.util.PushUtils;
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 
@@ -28,6 +45,7 @@ import static androidnews.kiloproject.system.AppConfig.CONFIG_AUTO_LOADMORE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_AUTO_NIGHT;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_AUTO_REFRESH;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_BACK_EXIT;
+import static androidnews.kiloproject.system.AppConfig.CONFIG_BLOCK_WE_MEDIA;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_DISABLE_NOTICE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_EASTER_EGGS;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_HAPTIC;
@@ -39,14 +57,17 @@ import static androidnews.kiloproject.system.AppConfig.CONFIG_PUSH;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_PUSH_MODE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_PUSH_SOUND;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_PUSH_TIME;
+import static androidnews.kiloproject.system.AppConfig.CONFIG_SHOW_DETAIL_TIME;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_SHOW_SKELETON;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_STATUS_BAR;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_SWIPE_BACK;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_TEXT_SIZE;
 import static androidnews.kiloproject.system.AppConfig.HOST_163;
+import static androidnews.kiloproject.system.AppConfig.isAutoNight;
+import static androidnews.kiloproject.system.AppConfig.isNightMode;
+import static androidnews.kiloproject.system.AppConfig.isPush;
+import static androidnews.kiloproject.system.AppConfig.isPushMode;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
-
-//import org.litepal.LitePal;
 
 /**
  * Created by Administrator on 2017/12/9.
@@ -77,7 +98,7 @@ public class MyApplication extends Application {
         Utils.init(this);
 
         SPUtils spUtils = SPUtils.getInstance();
-        AppConfig.isShowSkeleton = spUtils.getBoolean(CONFIG_SHOW_SKELETON,true);
+        AppConfig.isShowSkeleton = spUtils.getBoolean(CONFIG_SHOW_SKELETON, true);
         AppConfig.isAutoNight = spUtils.getBoolean(CONFIG_AUTO_NIGHT);
         AppConfig.listType = spUtils.getInt(CONFIG_LIST_TYPE, -1);
         AppConfig.mTextSize = spUtils.getInt(CONFIG_TEXT_SIZE, 1);
@@ -96,56 +117,88 @@ public class MyApplication extends Application {
         AppConfig.isHaptic = spUtils.getBoolean(CONFIG_HAPTIC);
         AppConfig.isNoImage = spUtils.getBoolean(CONFIG_NO_IMAGE);
         AppConfig.isHighRam = spUtils.getBoolean(CONFIG_HIGH_RAM);
+        AppConfig.isBlockWeMedia = spUtils.getBoolean(CONFIG_BLOCK_WE_MEDIA);
+        AppConfig.isShowDetailTime = spUtils.getBoolean(CONFIG_SHOW_DETAIL_TIME);
 
         int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (mode == Configuration.UI_MODE_NIGHT_YES)
+        if (AppConfig.isAutoNight && mode == Configuration.UI_MODE_NIGHT_YES)
             AppConfig.isNightMode = true;
 
-//        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-//            @Override
-//            public void onActivityCreated(Activity activity, Bundle bundle) {
-//                if (activity instanceof PermissionActivity) //第三方Activity通通跳过EventBus注册
-//                    return;
-//                EventBus.getDefault().register(activity);
-//            }
-//
-//            @Override
-//            public void onActivityStarted(Activity activity) {
-//            }
-//
-//            @Override
-//            public void onActivityResumed(Activity activity) {
-//            }
-//
-//            @Override
-//            public void onActivityPaused(Activity activity) {
-//            }
-//
-//            @Override
-//            public void onActivityStopped(Activity activity) {
-//            }
-//
-//            @Override
-//            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-//            }
-//
-//            @Override
-//            public void onActivityDestroyed(Activity activity) {
-//                if (activity instanceof PermissionActivity) //第三方Activity通通跳过EventBus注销
-//                    return;
-//                EventBus.getDefault().unregister(activity);
-//            }
-//        });
+        if (isAutoNight) {
+            int currentNightMode = getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK;
+            switch (currentNightMode) {
+                case Configuration.UI_MODE_NIGHT_NO:
+                    // Night mode is not active, we're in day time
+                case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                    // We don't know what mode we're in, assume notnight
+                    isNightMode = false;
+                    break;
+                case Configuration.UI_MODE_NIGHT_YES:
+                    // Night mode is active, we're at night!
+                    isNightMode = true;
+                    break;
+            }
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
+            else
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(isNightMode ? AppCompatDelegate.MODE_NIGHT_YES :
+                    AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         RxJavaPlugins.setErrorHandler(new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 LogUtils.d("onRxJavaErrorHandler ---->: $it");
             }
         });
+
+        if (isPush && isPushMode) {
+            Cactus.getInstance()
+                    .isDebug(AppUtils.isAppDebug())
+                    .setChannelId("Mere Push Cactus")
+                    .setChannelName("Mere Push Channel Compat")
+                    .setTitle("MereNews")
+                    .setContent("MereNews推送服务运行中...")
+                    .setSmallIcon(R.drawable.ic_launcher_logo)
+                    .hideNotificationAfterO(true)
+                    .setMusicInterval(25)
+                    .addCallback(new CactusCallback() {
+                        @Override
+                        public void doWork(int i) {
+                            LogUtils.d("Mere新闻兼容推送模式开始工作!");
+                            PushUtils.getPushList(getInstance());
+                        }
+
+                        @Override
+                        public void onStop() {
+                            LogUtils.d("Mere新闻兼容推送模式停止工作!");
+                        }
+                    })
+                    .register(this);
+        }
+        EasyFloat.init(this, AppUtils.isAppDebug());
+        Glide.init(getInstance(),new GlideBuilder().setDiskCache(new DiskCache.Factory() {
+            @Nullable
+            @Override
+            public DiskCache build() {
+                File cacheLocation = new File(PathUtils.getInternalAppCachePath());
+                cacheLocation.mkdirs();
+                return DiskLruCacheWrapper.create(cacheLocation, 1024 * 1024 * 196);
+            }
+        }));
     }
 
     public static MyApplication getInstance() {
         return instance;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(base);
     }
 
     static {

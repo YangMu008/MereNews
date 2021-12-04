@@ -172,15 +172,9 @@
 
     <string name="text_size">Article Text Size</string>
 
-    <string name="random_header_pic_per">Manual transmission</string>
+    <string name="random_header_banner">Picture News</string>
 
-    <string name="random_header_pic_auto">Automatic transmission</string>
-
-    <string name="random_header_color_gradual">Gradual color transmission</string>
-
-    <string name="random_header_color_pure">Pure color transmission</string>
-
-    <string name="custom_header_color_pure">Custom pure color</string>
+    <string name="random_header_static">Static Pic</string>
 
     <string name="click_to_exit">Press again to exit the app</string>
 
@@ -278,7 +272,7 @@
 
     <string name="notification_mode">Compat mode</string>
 
-    <string name="notification_mode_detail">Suggestions are given to the whitelist and not pushed to try.</string>
+    <string name="notification_mode_detail">Only users who cannot receive push are advised to try.</string>
 
     <string name="time_level_1">frequent</string>
     <string name="time_level_2">normal</string>
@@ -307,4 +301,24 @@
     <string name="support_offline">Support offline</string>
 
     <string name="home">Home</string>
+
+    <string name="refresh">Refresh</string>
+
+    <string name="previous">Previous</string>
+
+    <string name="next">Next</string>
+
+    <string name="search">Search</string>
+
+    <string name="lab_setting">Function Lab</string>
+
+    <string name="lab_setting_detail">New function settings</string>
+
+    <string name="block_we_media">Shielding Netease We Media</string>
+
+    <string name="show_detail_time">Detailed time of list page</string>
+
+    <string name="enabled">Enabled</string>
+
+    <string name="disabled">Disabled</string>
 </resources>

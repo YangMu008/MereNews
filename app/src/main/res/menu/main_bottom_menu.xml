@@ -1,15 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_add_lib"
-        android:title="@string/channel"
-        android:orderInCategory="80"
-        android:icon="@drawable/ic_library_add"
-        app:showAsAction="always|withText" />
+    <item
+        android:id="@+id/nav_his"
+        android:title="@string/history"
+        android:icon="@drawable/ic_history"
+        app:showAsAction="always|withText"/>
 
-    <item android:id="@+id/action_mine"
+    <item
+        android:id="@+id/nav_coll"
+        android:title="@string/action_star"
+        android:icon="@drawable/ic_star_no"
+        app:showAsAction="always|withText"/>
+
+    <item
+        android:id="@+id/nav_block"
+        android:title="@string/block_rule"
+        android:icon="@drawable/ic_visibility_off"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item android:id="@+id/nav_setting"
         android:title="@string/setting"
-        android:orderInCategory="80"
         android:icon="@drawable/ic_settings"
-        app:showAsAction="always|withText" />
+        app:showAsAction="always|withText"/>
+
+    <item android:id="@+id/nav_about"
+        android:title="@string/about"
+        android:icon="@drawable/ic_about"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item android:id="@+id/nav_theme"
+        android:title="@string/night_theme"
+        android:icon="@drawable/ic_theme"
+        app:showAsAction="ifRoom|withText"/>
 </menu>

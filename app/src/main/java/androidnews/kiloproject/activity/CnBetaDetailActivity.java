@@ -39,6 +39,7 @@ import androidnews.kiloproject.entity.net.CnBetaDetailData;
 import androidnews.kiloproject.entity.net.CnbetaCommentData;
 import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.util.CNBetaUtils;
+import androidnews.kiloproject.web.DetailWebViewClient;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -53,6 +54,7 @@ import static androidnews.kiloproject.system.AppConfig.GET_CNBETA_MD5_EXTRA;
 import static androidnews.kiloproject.system.AppConfig.HOST_CNBETA_SHARE;
 import static androidnews.kiloproject.system.AppConfig.TYPE_CNBETA;
 import static androidnews.kiloproject.system.AppConfig.isNightMode;
+import static com.blankj.utilcode.util.CollectionUtils.isEmpty;
 
 public class CnBetaDetailActivity extends BaseDetailActivity {
 
@@ -275,39 +277,7 @@ public class CnBetaDetailActivity extends BaseDetailActivity {
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
-                String colorBody = isNightMode ? "<body bgcolor=\"#212121\" body text=\"#ccc\">" : "<body text=\"#333\">";
-                html = "<!DOCTYPE html>" +
-                        "<html lang=\"zh\">" +
-                        "<head>" +
-                        "<meta charset=\"UTF-8\" />" +
-                        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />" +
-                        "<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\" />" +
-                        "<title>Document</title>" +
-                        "<style type=\"text/css\">" +
-                        "body{\n" +
-                        "margin-left:18px;\n" +
-                        "margin-right:18px;\n" +
-                        "}" +
-                        "p {line-height:36px;}" +
-                        "body img{" +
-                        "width: 100%;" +
-                        "height: 100%;" +
-                        "}" +
-                        "body video{" +
-                        "width: 100%;" +
-                        "height: 100%;" +
-                        "}" +
-                        "p{margin: 25px auto}" +
-                        "div{width:100%;height:30px;} #from{width:auto;float:left;color:gray;} #time{width:auto;float:right;color:gray;}" +
-                        "</style>" +
-                        "</head>" +
-                        colorBody
-                        + "<p><h2>" + currentData.getResult().getTitle() + "</h2></p>"
-                        + "<p><div><div id=\"from\">" + source +
-                        "</div><div id=\"time\">" + currentData.getResult().getTime() + "</div></div></p>"
-                        + "<font size=\"4\">"
-                        + body + "</font></body>" +
-                        "</html>";
+                html = createHtmlText(currentData.getResult().getTitle(),source,currentData.getResult().getTime(),body);
                 e.onNext(true);
                 e.onComplete();
             }
@@ -338,14 +308,14 @@ public class CnBetaDetailActivity extends BaseDetailActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (list != null && list.size() > 0)
+                if (!isEmpty(list))
                     for (CacheNews cacheNews : list) {
                         if (cacheNews.getType() == type)
                             return;
                     }
                 CacheNews cacheNews = new CacheNews(currentData.getResult().getTitle(),
                         AppConfig.HOST_CNBETA_IMG + currentData.getResult().getThumb(),
-                        currentData.getResult().getSource(),
+                        deleteHtml(currentData.getResult().getSource()),
                         String.valueOf(currentData.getResult().getSid()),
                         html,
                         type,
@@ -364,7 +334,7 @@ public class CnBetaDetailActivity extends BaseDetailActivity {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        if (list != null && list.size() > 0) {
+        if (!isEmpty(list)) {
             for (CacheNews cacheNews : list) {
                 if (cacheNews.getType() == CACHE_COLLECTION) {
                     if (isClear) {
@@ -440,6 +410,8 @@ public class CnBetaDetailActivity extends BaseDetailActivity {
                 webView.loadUrl("javascript:document.body.style.paddingBottom=\"" + ConvertUtils.dp2px(16) + "px\"; void 0");
             }
         });
+
+        webView.setWebViewClient(new DetailWebViewClient());
     }
 
     @Override

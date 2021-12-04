@@ -1,6 +1,7 @@
 package androidnews.kiloproject.activity;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -27,12 +28,9 @@ import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.RomUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.SnackbarUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.blankj.utilcode.util.Utils;
 import com.bumptech.glide.Glide;
-import com.flask.colorpicker.ColorPickerView;
-import com.flask.colorpicker.OnColorSelectedListener;
-import com.flask.colorpicker.builder.ColorPickerClickListener;
-import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.zhouyou.http.EasyHttp;
 import com.zhouyou.http.callback.SimpleCallBack;
@@ -60,9 +58,11 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 import static androidnews.kiloproject.system.AppConfig.CONFIG_AUTO_NIGHT;
+import static androidnews.kiloproject.system.AppConfig.CONFIG_BLOCK_WE_MEDIA;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_HAPTIC;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_NO_IMAGE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_PUSH_MODE;
+import static androidnews.kiloproject.system.AppConfig.CONFIG_SHOW_DETAIL_TIME;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_SHOW_SKELETON;
 import static androidnews.kiloproject.system.AppConfig.QQ_KEY;
 import static androidnews.kiloproject.system.AppConfig.CHECK_UPDATE_ADDRESS;
@@ -71,7 +71,6 @@ import static androidnews.kiloproject.system.AppConfig.CONFIG_AUTO_REFRESH;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_BACK_EXIT;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_DISABLE_NOTICE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_EASTER_EGGS;
-import static androidnews.kiloproject.system.AppConfig.CONFIG_HEADER_COLOR;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_HIGH_RAM;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_LANGUAGE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_LIST_TYPE;
@@ -86,6 +85,7 @@ import static androidnews.kiloproject.system.AppConfig.CONFIG_TEXT_SIZE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_TYPE_ARRAY;
 import static androidnews.kiloproject.system.AppConfig.DOWNLOAD_ADDRESS;
 import static androidnews.kiloproject.system.AppConfig.LIST_TYPE_SINGLE;
+import static androidnews.kiloproject.system.AppConfig.isNightMode;
 
 public class SettingActivity extends BaseActivity implements View.OnClickListener {
 
@@ -256,7 +256,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         try {
-                            tvRandomHeaderDetail.setText(headerItems[currentRandomHeader]);
+                            tvRandomHeaderDetail.setText(currentRandomHeader > 0 ? headerItems[1] : headerItems[0]);
                             tvListTypeDetail.setText(listItems[spUtils.getInt(CONFIG_LIST_TYPE, LIST_TYPE_SINGLE)]);
                             tvTextSizeDetail.setText(sizeItems[AppConfig.mTextSize]);
                             tvLanguageDetail.setText(languageItems[currentLanguage]);
@@ -401,13 +401,10 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                                         dialog.dismiss();
                                         restartWithAnime(R.id.root_view, R.id.content);
                                     }
-                                })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .create().show();
+                                }).setNegativeButton(android.R.string.cancel, null).show()
+                        .getButton(Dialog.BUTTON_NEGATIVE)
+                        .setBackgroundColor(getResources()
+                                .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
                 break;
 
             case R.id.tv_text_size:
@@ -427,13 +424,10 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                                                 .show();
                                         dialog.dismiss();
                                     }
-                                })
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .create().show();
+                                }).setNegativeButton(android.R.string.cancel, null).show()
+                        .getButton(Dialog.BUTTON_NEGATIVE)
+                        .setBackgroundColor(getResources()
+                                .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
                 break;
 
             case R.id.tv_auto_refresh:
@@ -491,20 +485,16 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                                         spUtils.put(CONFIG_RANDOM_HEADER, which);
                                         tvRandomHeaderDetail.setText(headerItems[which]);
                                         currentRandomHeader = which;
-                                        if (which > 3)
-                                            showColorPicker();
-                                        else
-                                            SnackbarUtils.with(toolbar)
-                                                    .setMessage(getString(R.string.start_after_restart_app))
-                                                    .show();
+
+                                        SnackbarUtils.with(toolbar)
+                                                .setMessage(getString(R.string.start_after_restart_app))
+                                                .show();
                                         dialog.dismiss();
                                     }
-                                }
-                        ).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).show();
+                                }).setNegativeButton(android.R.string.cancel, null).show()
+                        .getButton(Dialog.BUTTON_NEGATIVE)
+                        .setBackgroundColor(getResources()
+                                .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
                 break;
 
             case R.id.tv_list_type:
@@ -513,22 +503,20 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                         .setTitle(R.string.list_type)
                         .setCancelable(true)
                         .setSingleChoiceItems(listItems, AppConfig.listType, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        spUtils.put(CONFIG_LIST_TYPE, which);
-                                        tvListTypeDetail.setText(listItems[which]);
-                                        AppConfig.listType = which;
-                                        SnackbarUtils.with(toolbar)
-                                                .setMessage(getString(R.string.start_after_restart_app))
-                                                .show();
-                                        dialog.dismiss();
-                                    }
-                                }
-                        ).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).show();
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                spUtils.put(CONFIG_LIST_TYPE, which);
+                                tvListTypeDetail.setText(listItems[which]);
+                                AppConfig.listType = which;
+                                SnackbarUtils.with(toolbar)
+                                        .setMessage(getString(R.string.start_after_restart_app))
+                                        .show();
+                                dialog.dismiss();
+                            }
+                        }).setNegativeButton(android.R.string.cancel, null).show()
+                        .getButton(Dialog.BUTTON_NEGATIVE)
+                        .setBackgroundColor(getResources()
+                                .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
                 break;
 
             case R.id.tv_swipe_back:
@@ -570,6 +558,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
             case R.id.tv_input_detail:
                 final EditText editText = new EditText(mActivity);
                 editText.setHint(R.string.input_backup_detail);
+                editText.setHintTextColor(getResources().getColor(R.color.black));
                 editText.setTextColor(getResources().getColor(R.color.black));
                 new MaterialStyledDialog.Builder(mActivity)
                         .setHeaderDrawable(R.drawable.ic_edit)
@@ -615,6 +604,11 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                                                     spUtils.put(CONFIG_AUTO_NIGHT, exportBean.isAutoNight);
                                                     spUtils.put(CONFIG_HAPTIC, exportBean.isHaptic);
                                                     spUtils.put(CONFIG_NO_IMAGE, exportBean.isNoImage);
+                                                    spUtils.put(CONFIG_BLOCK_WE_MEDIA, exportBean.isBlockWeMedia);
+                                                    spUtils.put(CONFIG_SHOW_DETAIL_TIME, exportBean.isShowDetailTime);
+                                                    for (BlockItem blockItem : exportBean.blockList) {
+                                                        blockItem.assignBaseObjId(0);
+                                                    }
                                                     LitePal.saveAll(exportBean.blockList);
                                                     e.onNext(true);
                                                 } else
@@ -699,6 +693,8 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                                             exportBean.blockList = blockList;
                                             exportBean.isHaptic = AppConfig.isHaptic;
                                             exportBean.isNoImage = AppConfig.isNoImage;
+                                            exportBean.isBlockWeMedia = AppConfig.isBlockWeMedia;
+                                            exportBean.isShowDetailTime = AppConfig.isShowDetailTime;
                                             String json = gson.toJson(exportBean);
                                             e.onNext(json);
                                         } catch (Exception e1) {
@@ -782,12 +778,46 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                                         SnackbarUtils.with(toolbar).setMessage(getString(R.string.successful)).show();
                                         dialog.dismiss();
                                     }
-                                }
-                        ).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).show();
+                                }).setNegativeButton(android.R.string.cancel, null).show()
+                        .getButton(Dialog.BUTTON_NEGATIVE)
+                        .setBackgroundColor(getResources()
+                                .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
+                break;
+
+            case R.id.tv_lab_setting:
+            case R.id.tv_lab_setting_detail:
+                new AlertDialog.Builder(mActivity)
+                        .setTitle(R.string.lab_setting)
+                        .setCancelable(true)
+                        .setSingleChoiceItems(
+                                getResources().getStringArray(R.array.lab_setting),-1, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which) {
+                                            case 0:
+                                                if (AppConfig.isBlockWeMedia)
+                                                    ToastUtils.showShort(R.string.disabled);
+                                                else
+                                                    ToastUtils.showShort(R.string.enabled);
+                                                AppConfig.isBlockWeMedia = !AppConfig.isBlockWeMedia;
+                                                spUtils.put(CONFIG_BLOCK_WE_MEDIA,AppConfig.isBlockWeMedia);
+                                                break;
+                                            case 1:
+                                                if (AppConfig.isShowDetailTime)
+                                                    ToastUtils.showShort(R.string.disabled);
+                                                else
+                                                    ToastUtils.showShort(R.string.enabled);
+                                                AppConfig.isShowDetailTime = !AppConfig.isShowDetailTime;
+                                                spUtils.put(CONFIG_SHOW_DETAIL_TIME,AppConfig.isShowDetailTime);
+                                                break;
+                                        }
+                                        SnackbarUtils.with(toolbar).setMessage(getString(R.string.start_after_restart_list)).show();
+                                        dialog.dismiss();
+                                    }
+                                }).setNegativeButton(android.R.string.cancel, null).show()
+                        .getButton(Dialog.BUTTON_NEGATIVE)
+                        .setBackgroundColor(getResources()
+                                .getColor(isNightMode ? R.color.awesome_background : android.R.color.darker_gray));
                 break;
 
             case R.id.tv_check_update:
@@ -887,39 +917,5 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                 startActivity(new Intent(mActivity, NotificationActivity.class));
                 break;
         }
-    }
-
-    private void showColorPicker() {
-        int color = spUtils.getInt(CONFIG_HEADER_COLOR, 9999);
-        if (color == 9999)
-            color = Color.parseColor("#FFA000");
-        ColorPickerDialogBuilder
-                .with(mActivity)
-                .setTitle(R.string.color_choose)
-                .initialColor(color)
-                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-                .density(12)
-                .setOnColorSelectedListener(new OnColorSelectedListener() {
-                    @Override
-                    public void onColorSelected(int selectedColor) {
-//                        ToastUtils.showShort("onColorSelected: 0x" + Integer.toHexString(selectedColor));
-                    }
-                })
-                .setPositiveButton(android.R.string.ok, new ColorPickerClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
-                        spUtils.put(CONFIG_HEADER_COLOR, selectedColor);
-                        SnackbarUtils.with(toolbar)
-                                .setMessage(getString(R.string.start_after_restart_app))
-                                .show();
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .build()
-                .show();
     }
 }

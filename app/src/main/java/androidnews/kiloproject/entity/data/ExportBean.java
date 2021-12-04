@@ -19,6 +19,8 @@ public class ExportBean {
             isNoImage,
             isEasterEggs,
             isShowSkeleton,
+            isBlockWeMedia,
+            isShowDetailTime,
             isAutoNight;
     public int listType,
             currentRandomHeader,

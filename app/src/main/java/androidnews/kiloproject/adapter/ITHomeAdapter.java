@@ -15,6 +15,8 @@ import androidnews.kiloproject.entity.net.ITHomeListData;
 import androidnews.kiloproject.system.AppConfig;
 import androidnews.kiloproject.util.GlideUtils;
 
+import static androidnews.kiloproject.util.TimeUtils.timeStrToTimelineTime;
+
 public class ITHomeAdapter extends BaseQuickAdapter<ITHomeListData.ItemBean, BaseViewHolder> {
     RequestOptions options;
     private Context mContext;
@@ -31,7 +33,7 @@ public class ITHomeAdapter extends BaseQuickAdapter<ITHomeListData.ItemBean, Bas
     protected void convert(BaseViewHolder helper, ITHomeListData.ItemBean item) {
         try {
             helper.setText(R.id.item_card_text, item.getTitle());
-            helper.setText(R.id.item_card_time, item.getPostdate());
+            helper.setText(R.id.item_card_time, timeStrToTimelineTime(item.getPostdate(),"yyyy/MM/dd HH:mm:ss"));
             helper.setText(R.id.item_card_subtitle, item.getDescription());
         } catch (Exception e) {
             e.printStackTrace();

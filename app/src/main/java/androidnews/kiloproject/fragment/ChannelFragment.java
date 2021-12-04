@@ -40,7 +40,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-import static androidnews.kiloproject.activity.MainActivity.DEFAULT_PAGE;
+import static androidnews.kiloproject.activity.NewsMainActivity.DEFAULT_PAGE;
 import static androidnews.kiloproject.system.AppConfig.CONFIG_TYPE_ARRAY;
 
 public class ChannelFragment extends BaseFragment implements AdapterView.OnItemClickListener {
