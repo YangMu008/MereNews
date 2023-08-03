@@ -1,12 +1,12 @@
 <component name="libraryTable">
   <library name="Gradle: com.blankj:swipe-panel:1.2@aar">
     <ANNOTATIONS>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/139cbf96296ed10df9a2ffdebf84705d/jetified-swipe-panel-1.2/annotations.zip!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/09171c3d793bcbbb94d19b44198cd957/transformed/jetified-swipe-panel-1.2/annotations.zip!/" />
     </ANNOTATIONS>
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/139cbf96296ed10df9a2ffdebf84705d/jetified-swipe-panel-1.2/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/139cbf96296ed10df9a2ffdebf84705d/jetified-swipe-panel-1.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/139cbf96296ed10df9a2ffdebf84705d/jetified-swipe-panel-1.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/09171c3d793bcbbb94d19b44198cd957/transformed/jetified-swipe-panel-1.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/09171c3d793bcbbb94d19b44198cd957/transformed/jetified-swipe-panel-1.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/09171c3d793bcbbb94d19b44198cd957/transformed/jetified-swipe-panel-1.2/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.blankj/swipe-panel/1.2/314e5b6c08579babb9e0b958935fda052d7bf83a/swipe-panel-1.2-javadoc.jar!/" />

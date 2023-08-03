@@ -7,7 +7,7 @@ import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.multidex.MultiDex;
+//import androidx.multidex.MultiDex;
 
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.LogUtils;
@@ -198,7 +198,7 @@ public class MyApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(base);
+//        MultiDex.install(base);
     }
 
     static {

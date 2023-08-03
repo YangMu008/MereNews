@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: com.gyf.cactus:cactus:1.1.3-beta10@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/664f72e621bd86b8a967b6465882b4d5/jetified-cactus-1.1.3-beta10/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/664f72e621bd86b8a967b6465882b4d5/jetified-cactus-1.1.3-beta10/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/664f72e621bd86b8a967b6465882b4d5/jetified-cactus-1.1.3-beta10/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/964458841f87f0fc35d75f7c034468d1/transformed/jetified-cactus-1.1.3-beta10/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/964458841f87f0fc35d75f7c034468d1/transformed/jetified-cactus-1.1.3-beta10/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/964458841f87f0fc35d75f7c034468d1/transformed/jetified-cactus-1.1.3-beta10/res" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.gyf.cactus/cactus/1.1.3-beta10/49f9ac744e0cbf798ce2d5534dd7cbe2b4ed0575/cactus-1.1.3-beta10-javadoc.jar!/" />

@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: com.zhouyou:rxeasyhttp:2.1.5@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f3ca67980983a2d87597b593a4c6c730/jetified-rxeasyhttp-2.1.5/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f3ca67980983a2d87597b593a4c6c730/jetified-rxeasyhttp-2.1.5/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f3ca67980983a2d87597b593a4c6c730/jetified-rxeasyhttp-2.1.5/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/03834496a42c2c707ff3afe543fdb66b/transformed/jetified-rxeasyhttp-2.1.5/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/03834496a42c2c707ff3afe543fdb66b/transformed/jetified-rxeasyhttp-2.1.5/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/03834496a42c2c707ff3afe543fdb66b/transformed/jetified-rxeasyhttp-2.1.5/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.zhouyou/rxeasyhttp/2.1.5/7a0a1d0738c5f8c0a5286cc09e929e5cf7667954/rxeasyhttp-2.1.5-javadoc.jar!/" />

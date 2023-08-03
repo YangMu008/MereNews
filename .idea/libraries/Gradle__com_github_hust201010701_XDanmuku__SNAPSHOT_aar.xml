@@ -1,13 +1,11 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.hust201010701:XDanmuku:-SNAPSHOT@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b73ed4aa6da0bc1c21898d1e67d5b157/jetified-XDanmuku--SNAPSHOT/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b73ed4aa6da0bc1c21898d1e67d5b157/jetified-XDanmuku--SNAPSHOT/AndroidManifest.xml" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/b73ed4aa6da0bc1c21898d1e67d5b157/jetified-XDanmuku--SNAPSHOT/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/9408698ad7633641f8aa5f368025cafd/transformed/jetified-XDanmuku--SNAPSHOT/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/9408698ad7633641f8aa5f368025cafd/transformed/jetified-XDanmuku--SNAPSHOT/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/9408698ad7633641f8aa5f368025cafd/transformed/jetified-XDanmuku--SNAPSHOT/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.hust201010701/XDanmuku/-SNAPSHOT/4d8c83e697638421fb2642ab6a64888766935ddc/XDanmuku--SNAPSHOT-sources.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

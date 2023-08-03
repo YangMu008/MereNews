@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: com.jpardogo.materialtabstrip:library:1.1.0@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/417881c952f2ad64a30cd736b55daea8/jetified-library-1.1.0/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/417881c952f2ad64a30cd736b55daea8/jetified-library-1.1.0/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/417881c952f2ad64a30cd736b55daea8/jetified-library-1.1.0/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/44e2ff981ea3f9741fc66fb01c11ae1b/transformed/jetified-library-1.1.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/44e2ff981ea3f9741fc66fb01c11ae1b/transformed/jetified-library-1.1.0/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/44e2ff981ea3f9741fc66fb01c11ae1b/transformed/jetified-library-1.1.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jpardogo.materialtabstrip/library/1.1.0/73b2505cb4283509fa365132d02dd55936350afb/library-1.1.0-javadoc.jar!/" />

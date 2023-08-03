@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.javiersantos:MaterialStyledDialogs:2.1@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bd62e92e119c9311f14a71157e44fd08/jetified-MaterialStyledDialogs-2.1/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bd62e92e119c9311f14a71157e44fd08/jetified-MaterialStyledDialogs-2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/bd62e92e119c9311f14a71157e44fd08/jetified-MaterialStyledDialogs-2.1/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/493300dd6a24036021fe4a93377cdd68/transformed/jetified-MaterialStyledDialogs-2.1/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/493300dd6a24036021fe4a93377cdd68/transformed/jetified-MaterialStyledDialogs-2.1/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/493300dd6a24036021fe4a93377cdd68/transformed/jetified-MaterialStyledDialogs-2.1/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
